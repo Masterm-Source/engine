@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Fireworks Engine - Phase 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+code
+Code
+download
+content_copy
+expand_less
+
+body {
+        background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+        overflow: hidden;
+        font-family: 'Arial', sans-serif;
+        height: 100vh;
+        color: white;
+    }
+
+    .controls {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: rgba(0, 0, 0, 0.85);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        padding: 25px;
+        min-width: 320px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .logo {
+        font-size: 18px;
+        font-weight: bold;
+        background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4, #45b7d1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .text-input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        font-size: 16px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .text-input:focus {
+        outline: none;
+        border-color: #4ecdc4;
+        box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+    }
+
+    .text-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    .suggestion-tag {
+        background: linear-gradient(45deg, rgba(255, 107, 107, 0.2), rgba(78, 205, 196, 0.2));
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .suggestion-tag:hover {
+        background: linear-gradient(45deg, rgba(255, 107, 107, 0.4), rgba(78, 205, 196, 0.4));
+        transform: translateY(-2px);
+    }
+
+    .fire-btn {
+        width: 100%;
+        background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+        border: none;
+        color: white;
+        padding: 15px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .fire-btn:hover {
+        background: linear-gradient(45deg, #ee5a24, #ff6b6b);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    }
+
+    .performance-warning {
+        background: rgba(255, 193, 7, 0.2);
+        border: 1px solid rgba(255, 193, 7, 0.5);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 12px;
+        margin-top: 15px;
+        display: none;
+    }
+
+    .canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 999;
+    }
+
+    #fireworksCanvas {
+        width: 100%;
+        height: 100%;
+    }
+
+    .debug-info {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 8px;
+        font-family: monospace;
+        font-size: 12px;
+        display: none;
+    }
+</style>
+</head>
+<body>
+    <div class="controls">
+        <div class="logo">🎆 ULTIMATE FIREWORKS ENGINE</div>
+
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+<input type="text" class="text-input" id="textInput" placeholder="Type: surprise, birthday, love, celebration...">
+    
+    <div class="suggestions">
+        <span class="suggestion-tag" onclick="setInput('surprise')">surprise</span>
+        <span class="suggestion-tag" onclick="setInput('birthday')">birthday</span>
+        <span class="suggestion-tag" onclick="setInput('love')">love</span>
+        <span class="suggestion-tag" onclick="setInput('celebration')">celebration</span>
+        <span class="suggestion-tag" onclick="setInput('wedding')">wedding</span>
+        <span class="suggestion-tag" onclick="setInput('newyear')">newyear</span>
+    </div>
+    
+    <button class="fire-btn" onclick="launchFireworks()">🚀 LAUNCH FIREWORKS</button>
+</div>
+
+<div class="canvas-container">
+    <canvas id="fireworksCanvas"></canvas>
+</div>
+
+<div class="debug-info" id="debugInfo">
+    Particles: <span id="debugParticles">0</span><br>
+    FPS: <span id="debugFPS">0</span><br>
+    Active Effects: <span id="debugEffects">0</span>
+</div>
+
+<script>
+    // =================================================================
+    // ULTIMATE FIREWORKS ENGINE - PHASE 1 FOUNDATION
+    // =================================================================
+
+    // CORE PARTICLE CLASS WITH ADVANCED PHYSICS
+    class UltimateParticle {
+        constructor(x, y, vx, vy, config = {}) {
+            this.x = x;
+            this.y = y;
+            this.vx = vx;
+            this.vy = vy;
+            
+            // Physics properties
+            this.gravity = config.gravity || 0.02;
+            this.friction = config.friction || 0.99;
+            this.bounce = config.bounce || 0.7;
+            this.mass = config.mass || 1;
+            
+            // Visual properties
+            this.color = config.color || [255, 255, 255];
+            this.life = config.life || 100;
+            this.maxLife = this.life;
+            this.size = config.size || 2;
+            this.fadeRate = config.fadeRate || 1;
+            
+            // Special effects
+            this.trail = config.trail || false;
+            this.trailPoints = [];
+            this.glow = config.glow || true;
+            this.sparkle = config.sparkle || false;
+            this.magnetism = config.magnetism || 0;
+            
+            // Behavior
+            this.type = config.type || 'spark';
+            this.explosionForce = config.explosionForce || 0;
+            this.swayAmount = config.swayAmount || 0;
+            this.swaySpeed = config.swaySpeed || 0.01;
+            this.time = 0;
+        }
+
+        update() {
+            this.time += 0.016; // ~60fps assumption
+            
+            // Apply forces
+            this.vy += this.gravity;
+            this.vx *= this.friction;
+            this.vy *= this.friction;
+            
+            // Sway effect for organic movement
+            if (this.swayAmount > 0) {
+                this.vx += Math.sin(this.time * this.swaySpeed) * this.swayAmount;
+            }
+            
+            // Update position
+            this.x += this.vx;
+            this.y += this.vy;
+            
+            // Boundary collision
+            if (this.y > window.innerHeight - 10 && this.vy > 0) {
+                this.vy *= -this.bounce;
+                this.y = window.innerHeight - 10;
+            }
+            
+            // Trail management
+            if (this.trail) {
+                this.trailPoints.push({x: this.x, y: this.y, life: 20});
+                this.trailPoints = this.trailPoints.filter(point => point.life-- > 0);
+            }
+            
+            // Life management
+            this.life -= this.fadeRate;
+            
+            return this.life > 0;
+        }
+
+        draw(ctx) {
+            const alpha = Math.max(0, this.life / this.maxLife);
+            const currentSize = this.size * (0.5 + alpha * 0.5);
+            
+            ctx.save();
+            
+            // Draw trail
+            if (this.trail && this.trailPoints.length > 0) {
+                ctx.globalCompositeOperation = 'screen';
+                for (let i = 0; i < this.trailPoints.length; i++) {
+                    const point = this.trailPoints[i];
+                    const trailAlpha = (point.life / 20) * alpha * 0.5;
+                    
+                    ctx.fillStyle = `rgba(${this.color.join(',')}, ${trailAlpha})`;
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, currentSize * 0.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+            
+            // Main particle with glow
+            if (this.glow) {
+                ctx.globalCompositeOperation = 'screen';
+                
+                // Outer glow
+                const glowSize = currentSize * 4;
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowSize);
+                gradient.addColorStop(0, `rgba(${this.color.join(',')}, ${alpha * 0.6})`);
+                gradient.addColorStop(0.5, `rgba(${this.color.join(',')}, ${alpha * 0.3})`);
+                gradient.addColorStop(1, `rgba(${this.color.join(',')}, 0)`);
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // Core particle
+            ctx.fillStyle = `rgba(${this.color.join(',')}, ${alpha})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, currentSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Sparkle effect
+            if (this.sparkle && Math.random() < 0.1) {
+                ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(this.x - currentSize * 2, this.y);
+                ctx.lineTo(this.x + currentSize * 2, this.y);
+                ctx.moveTo(this.x, this.y - currentSize * 2);
+                ctx.lineTo(this.x, this.y + currentSize * 2);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        }
+    }
+
+    // MATHEMATICAL SHAPE ENGINE
+    class ShapeEngine {
+        static createHeart(centerX, centerY, scale = 1, pointCount = 50) {
+            const points = [];
+            for (let i = 0; i < pointCount; i++) {
+                const t = (i / pointCount) * Math.PI * 2;
+                const x = scale * 16 * Math.pow(Math.sin(t), 3);
+                const y = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                points.push({
+                    x: centerX + x,
+                    y: centerY - y
+                });
+            }
+            return points;
+        }
+
+        static createStar(centerX, centerY, points = 5, outerRadius = 50, innerRadius = 25) {
+            const result = [];
+            const angleStep = Math.PI / points;
+            
+            for (let i = 0; i < points * 2; i++) {
+                const angle = i * angleStep;
+                const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                result.push({
+                    x: centerX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius
+                });
+            }
+            return result;
+        }
+
+        static createSpiral(centerX, centerY, turns = 3, maxRadius = 100, pointCount = 100) {
+            const points = [];
+            for (let i = 0; i < pointCount; i++) {
+                const t = (i / pointCount) * turns * Math.PI * 2;
+                const radius = (i / pointCount) * maxRadius;
+                points.push({
+                    x: centerX + Math.cos(t) * radius,
+                    y: centerY + Math.sin(t) * radius
+                });
+            }
+            return points;
+        }
+
+        static createText(text, centerX, centerY, fontSize = 40) {
+            // Simplified text to points conversion
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 400;
+            canvas.height = 100;
+            
+            ctx.font = `${fontSize}px Arial`;
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(text, 200, 50);
+            
+            const imageData = ctx.getImageData(0, 0, 400, 100);
+            const points = [];
+            
+            for (let y = 0; y < 100; y += 4) {
+                for (let x = 0; x < 400; x += 4) {
+                    const i = (y * 400 + x) * 4;
+                    if (imageData.data[i + 3] > 128) { // Alpha channel
+                        points.push({
+                            x: centerX + x - 200,
+                            y: centerY + y - 50
+                        });
+                    }
+                }
+            }
+            return points;
+        }
+    }
+
+    // COLOR PALETTE SYSTEM
+    class ColorPalette {
+        static palettes = {
+            surprise: [
+                [255, 255, 100], [255, 150, 50], [255, 100, 150],
+                [150, 255, 150], [100, 200, 255]
+            ],
+            birthday: [
+                [255, 192, 203], [255, 255, 150], [150, 255, 150],
+                [255, 150, 255], [150, 255, 255]
+            ],
+            love: [
+                [255, 100, 100], [255, 150, 150], [255, 200, 200],
+                [255, 255, 255], [255, 180, 180]
+            ],
+            celebration: [
+                [255, 215, 0], [255, 100, 100], [100, 255, 100],
+                [100, 100, 255], [255, 255, 255]
+            ],
+            wedding: [
+                [255, 255, 255], [255, 240, 245], [255, 215, 0],
+                [255, 182, 193], [240, 248, 255]
+            ],
+            newyear: [
+                [255, 215, 0], [255, 255, 255], [255, 100, 100],
+                [100, 100, 255], [255, 150, 50]
+            ]
+        };
+
+        static getRandomColor(category = 'surprise') {
+            const palette = this.palettes[category] || this.palettes.surprise;
+            return palette[Math.floor(Math.random() * palette.length)];
+        }
+
+        static getGradientColors(category = 'surprise', count = 5) {
+            const palette = this.palettes[category] || this.palettes.surprise;
+            const result = [];
+            for (let i = 0; i < count; i++) {
+                result.push(palette[i % palette.length]);
+            }
+            return result;
+        }
+    }
+
+    // TEXT PROCESSING ENGINE
+    class TextProcessor {
+        static keywords = {
+            surprise: { shapes: ['star', 'burst'], colors: 'surprise', intensity: 8 },
+            birthday: { shapes: ['cake', 'star', 'text'], colors: 'birthday', intensity: 6 },
+            love: { shapes: ['heart', 'text'], colors: 'love', intensity: 5 },
+            celebration: { shapes: ['star', 'burst', 'spiral'], colors: 'celebration', intensity: 7 },
+            wedding: { shapes: ['heart', 'star'], colors: 'wedding', intensity: 6 },
+            newyear: { shapes: ['star', 'burst', 'text'], colors: 'newyear', intensity: 9 }
+        };
+
+        static process(input) {
+            const words = input.toLowerCase().split(/\s+/);
+            let config = {
+                shapes: ['burst'],
+                colors: 'surprise',
+                intensity: 5,
+                duration: 8,
+                text: null
+            };
+
+            // Process each word
+            for (const word of words) {
+                if (this.keywords[word]) {
+                    const keywordConfig = this.keywords[word];
+                    config.shapes = keywordConfig.shapes;
+                    config.colors = keywordConfig.colors;
+                    config.intensity = keywordConfig.intensity;
+                }
+                
+                // Check if it should be rendered as text
+                if (word.length > 2 && !this.keywords[word]) {
+                    config.text = word.toUpperCase();
+                    config.shapes.push('text');
+                }
+            }
+
+            return config;
+        }
+    }
+
+    // MAIN FIREWORKS ENGINE
+    class UltimateFireworksEngine {
+        constructor() {
+            this.canvas = document.getElementById('fireworksCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.particles = [];
+            this.effects = [];
+            this.isRunning = false;
+            this.animationId = null;
+            
+            this.resize();
+            window.addEventListener('resize', () => this.resize());
+            
+            // Performance monitoring
+            this.frameCount = 0;
+            this.lastFPSUpdate = Date.now();
+            this.currentFPS = 60;
+        }
+
+        resize() {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        }
+
+        createExplosion(x, y, config) {
+            const particleCount = Math.floor(config.intensity * 20);
+            const colors = ColorPalette.getGradientColors(config.colors, 5);
+            
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 / particleCount) * i + Math.random() * 0.5;
+                const speed = 2 + Math.random() * config.intensity;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                this.particles.push(new UltimateParticle(
+                    x, y,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed,
+                    {
+                        color: color,
+                        life: 60 + Math.random() * 40,
+                        size: 1 + Math.random() * 3,
+                        trail: Math.random() < 0.3,
+                        sparkle: Math.random() < 0.2,
+                        swayAmount: Math.random() * 0.02
+                    }
+                ));
+            }
+        }
+
+        createShapeFormation(shape, config) {
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.4;
+            let points = [];
+
+            switch (shape) {
+                case 'heart':
+                    points = ShapeEngine.createHeart(centerX, centerY, config.intensity * 2);
+                    break;
+                case 'star':
+                    points = ShapeEngine.createStar(centerX, centerY, 5, config.intensity * 8, config.intensity * 4);
+                    break;
+                case 'spiral':
+                    points = ShapeEngine.createSpiral(centerX, centerY, 3, config.intensity * 10, 50);
+                    break;
+                case 'text':
+                    if (config.text) {
+                        points = ShapeEngine.createText(config.text, centerX, centerY, config.intensity * 5);
+                    }
+                    break;
+            }
+
+            const colors = ColorPalette.getGradientColors(config.colors, 3);
+            
+            points.forEach((point, index) => {
+                setTimeout(() => {
+                    const color = colors[index % colors.length];
+                    this.particles.push(new UltimateParticle(
+                        centerX, centerY,
+                        (point.x - centerX) * 0.05,
+                        (point.y - centerY) * 0.05,
+                        {
+                            color: color,
+                            life: 120 + Math.random() * 60,
+                            size: 2 + Math.random() * 2,
+                            friction: 0.95,
+                            gravity: 0.01,
+                            glow: true,
+                            sparkle: true
+                        }
+                    ));
+                }, index * 20);
+            });
+        }
+
+        launchSequence(config) {
+            this.stop(); // Clear previous
+            this.start();
+            
+            const sequence = [
+                { delay: 0, action: () => this.createLaunchTrail(config) },
+                { delay: 1000, action: () => this.createExplosion(this.canvas.width / 2, this.canvas.height * 0.4, config) },
+                { delay: 1500, action: () => {
+                    config.shapes.forEach(shape => {
+                        this.createShapeFormation(shape, config);
+                    });
+                }},
+                { delay: 3000, action: () => this.createFinaleExplosion(config) }
+            ];
+
+            sequence.forEach(({ delay, action }) => {
+                setTimeout(action, delay);
+            });
+
+            // Auto-stop based on duration
+            setTimeout(() => this.stop(), config.duration * 1000);
+        }
+
+        createLaunchTrail(config) {
+            const startX = this.canvas.width / 2;
+            const startY = this.canvas.height - 50;
+            const targetY = this.canvas.height * 0.4;
+            
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const color = ColorPalette.getRandomColor(config.colors);
+                    this.particles.push(new UltimateParticle(
+                        startX + (Math.random() - 0.5) * 10,
+                        startY - i * 15,
+                        (Math.random() - 0.5) * 2,
+                        -8 + Math.random() * 2,
+                        {
+                            color: color,
+                            life: 40,
+                            size: 2,
+                            trail: true,
+                            gravity: 0.05
+                        }
+                    ));
+                }, i * 30);
+            }
+        }
+
+        createFinaleExplosion(config) {
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const x = this.canvas.width * (0.2 + Math.random() * 0.6);
+                    const y = this.canvas.height * (0.3 + Math.random() * 0.3);
+                    this.createExplosion(x, y, { ...config, intensity: config.intensity * 1.5 });
+                }, i * 300);
+            }
+        }
+
+        start() {
+            this.isRunning = true;
+            this.animate();
+        }
+
+        stop() {
+            this.isRunning = false;
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
+            }
+            this.particles = [];
+        }
+
+        animate() {
+            if (!this.isRunning) return;
+
+            // Clear canvas with fade effect
+            this.ctx.fillStyle = 'rgba(27, 39, 53, 0.1)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+            // Update and draw particles
+            this.particles = this.particles.filter(particle => {
+                const alive = particle.update();
+                if (alive) particle.draw(this.ctx);
+                return alive;
+            });
+
+            // Update debug info
+            this.updateDebugInfo();
+
+            this.animationId = requestAnimationFrame(() => this.animate());
+        }
+
+        updateDebugInfo() {
+            this.frameCount++;
+            const now = Date.now();
+            if (now - this.lastFPSUpdate > 1000) {
+                this.currentFPS = Math.round(this.frameCount * 1000 / (now - this.lastFPSUpdate));
+                this.frameCount = 0;
+                this.lastFPSUpdate = now;
+                
+                document.getElementById('debugParticles').textContent = this.particles.length;
+                document.getElementById('debugFPS').textContent = this.currentFPS;
+                document.getElementById('debugEffects').textContent = this.effects.length;
+            }
+        }
+    }
+
+    // INITIALIZATION AND UI HANDLERS
+    const engine = new UltimateFireworksEngine();
+
+    function setInput(value) {
+        document.getElementById('textInput').value = value;
+    }
+
+    function launchFireworks() {
+        const input = document.getElementById('textInput').value.trim() || 'surprise';
+        
+        // Hardcoded values for Phase 1
+        const intensity = 5;
+        const duration = 8;
+        const particleCount = 500;
+        
+        // Process text input
+        let config = TextProcessor.process(input);
+        config.intensity = intensity;
+        config.duration = duration;
+        config.particleCount = particleCount;
+        
+        // Launch!
+        engine.launchSequence(config);
+    }
+
+    // UI Event Listeners
+    document.getElementById('textInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            launchFireworks();
+        }
+    });
+
+    // Enable debug info (uncomment for development)
+    // document.getElementById('debugInfo').style.display = 'block';
+
+    console.log('🎆 ULTIMATE FIREWORKS ENGINE - PHASE 1 LOADED');
+    console.log('Ready for mind-blowing fireworks!');
+</script>
+</body>
+</html>
+
+
+Script final
