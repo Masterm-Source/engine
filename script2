@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Text Fireworks - Animation Variants</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Playfair+Display:wght@700&family=Oswald:wght@600&family=Montserrat:wght@700&family=Dancing+Script:wght@700&family=Lobster&display=swap');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            overflow: hidden; height: 100vh; color: #ffffff; font-family: 'Inter', sans-serif;
+        }
+        .controls {
+            position: fixed; top: 20px; right: 20px; z-index: 1001;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+            padding: 20px; min-width: 320px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .title { font-size: 18px; font-weight: 700; color: #00d4ff; margin-bottom: 20px; text-align: center; letter-spacing: 0.5px; }
+        .input-group { margin-bottom: 16px; }
+        .input-label { display: block; margin-bottom: 6px; font-size: 13px; color: #aaa; font-weight: 500; }
+        .text-input, .font-selector, .color-selector, .animation-selector {
+            width: 100%; padding: 10px 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05); color: white; font-size: 14px;
+        }
+        .text-input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2); }
+        .launch-btn {
+            width: 100%; background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none; color: white; padding: 12px; border-radius: 6px; font-size: 14px;
+            font-weight: 600; cursor: pointer; text-transform: uppercase;
+            letter-spacing: 0.5px; transition: all 0.2s ease; margin-top: 10px;
+        }
+        .launch-btn:hover { background: linear-gradient(135deg, #0099cc, #00d4ff); transform: translateY(-1px); }
+        .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+        .suggestion {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px; padding: 4px 10px; font-size: 11px; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .suggestion:hover { background: rgba(0, 212, 255, 0.2); border-color: #00d4ff; }
+        #fireworksCanvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 999; }
+        .preview {
+            text-align: center; padding: 15px; border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px; background: rgba(255, 255, 255, 0.02); margin-bottom: 15px;
+        }
+        #previewText { font-size: 24px; font-weight: 700; color: #00d4ff; min-height: 29px; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="title">ADVANCED TEXT FIREWORKS</div>
+        <div class="preview"><div id="previewText">Hello</div></div>
+        <div class="input-group">
+            <label class="input-label">Text:</label>
+            <input type="text" class="text-input" id="textInput" value="This is how you write a sentence" maxlength="100">
+        </div>
+        <div class="input-group">
+            <label class="input-label">Animation Style:</label>
+            <select class="animation-selector" id="animationSelector">
+                <option value="classic">Classic Fireworks</option>
+                <option value="wave">Wave Formation</option>
+                <option value="spiral">Spiral Galaxy</option>
+                <option value="typewriter">Typewriter Effect</option>
+                <option value="magnetic">Magnetic Pull</option>
+                <option value="phoenix">Phoenix Rise</option>
+                <option value="matrix">Matrix Rain</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label class="input-label">Font:</label>
+            <select class="font-selector" id="fontSelector">
+                <option value="Playfair Display">Playfair - Elegant</option>
+                <option value="'Dancing Script', cursive">Dancing Script - Calligraphy</option>
+                <option value="'Lobster', cursive">Lobster - Artistic</option>
+                <option value="Oswald">Oswald - Bold</option>
+                <option value="Inter">Inter - Modern</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label class="input-label">Color:</label>
+            <select class="color-selector" id="colorSelector">
+                <option value="electric">Electric Blue</option>
+                <option value="gold">Gold</option>
+                <option value="neon">Neon Green</option>
+                <option value="purple">Purple</option>
+                <option value="fire">Fire Orange</option>
+                <option value="rainbow">Rainbow</option>
+            </select>
+        </div>
+        <button class="launch-btn" id="launchBtn">Launch</button>
+        <div class="suggestions">
+            <span class="suggestion" data-text="Hello World">Hello World</span>
+            <span class="suggestion" data-text="A New Beginning">A New Beginning</span>
+            <span class="suggestion" data-text="This is how a proper sentence is rendered">Proper Sentence</span>
+        </div>
+    </div>
+    <canvas id="fireworksCanvas"></canvas>
+
+code
+Code
+download
+content_copy
+expand_less
+
+<script>
+    // --- THE DEFINITIVE TEXT ENGINE ---
+    class CanvasTextEngine {
+        constructor() {
+            this.canvas = document.createElement('canvas');
+            this.ctx = this.canvas.getContext('2d');
+        }
+
+        wrapTextByWordCount(text, maxWordsPerLine) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = [];
+            for (let i = 0; i < words.length; i++) {
+                currentLine.push(words[i]);
+                if (currentLine.length === maxWordsPerLine || i === words.length - 1) {
+                    lines.push(currentLine.join(' '));
+                    currentLine = [];
+                }
+            }
+            return lines;
+        }
+
+        generateTextCoordinates(text, font, density = 4) {
+            const coordinates = [];
+            const canvasWidth = window.innerWidth;
+            const canvasHeight = 600;
+            this.canvas.width = canvasWidth;
+            this.canvas.height = canvasHeight;
+
+            const fontSize = 70;
+            const maxWordsPerLine = 7;
+
+            const lines = this.wrapTextByWordCount(text, maxWordsPerLine);
+            const lineHeight = fontSize * 1.1;
+            const totalHeight = lines.length * lineHeight;
+
+            this.ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            this.ctx.fillStyle = 'white';
+            this.ctx.font = `bold ${fontSize}px ${font}`;
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+
+            lines.forEach((line, index) => {
+                const y = (canvasHeight / 2) - (totalHeight / 2) + (index * lineHeight) + (lineHeight / 2);
+                this.ctx.fillText(line, canvasWidth / 2, y);
+            });
+
+            const imageData = this.ctx.getImageData(0, 0, canvasWidth, canvasHeight);
+            const data = imageData.data;
+            for (let y = 0; y < canvasHeight; y += density) {
+                for (let x = 0; x < canvasWidth; x += density) {
+                    if (data[(y * canvasWidth + x) * 4 + 3] > 128) {
+                        coordinates.push({ x: x - canvasWidth / 2, y: y - canvasHeight / 2 });
+                    }
+                }
+            }
+            return coordinates;
+        }
+    }
+    
+    // Enhanced particle class with animation variant support
+    class TextParticle {
+        constructor(x, y, vx, vy, color, life, size = 1.5, animationType = 'classic') {
+            this.x = x; this.y = y; this.startX = x; this.startY = y;
+            this.vx = vx; this.vy = vy; this.color = color; this.life = life; this.maxLife = life; this.size = size;
+            this.gravity = 0.03; this.friction = 0.98; this.state = 'exploding';
+            this.targetX = 0; this.targetY = 0; this.convergeTime = 0; this.convergeDuration = 100;
+            this.holdTime = 0; this.maxHoldTime = 180; this.hasFlashed = false; this.canSpark = true;
+            this.animationType = animationType;
+            
+            // Animation-specific properties
+            this.wavePhase = Math.random() * Math.PI * 2;
+            this.waveAmplitude = 50;
+            this.spiralAngle = 0;
+            this.spiralRadius = 0;
+            this.typewriterDelay = 0;
+            this.magneticCharge = Math.random() > 0.5 ? 1 : -1;
+            this.phoenixRiseSpeed = 0;
+            this.matrixFallSpeed = 2 + Math.random() * 3;
+            this.originalTargetX = 0; this.originalTargetY = 0;
+            this.pulsePhase = Math.random() * Math.PI * 2;
+            this.trailPositions = [];
+            this.maxTrailLength = 8;
+        }
+
+        assignTarget(tx, ty) {
+            this.targetX = tx; this.targetY = ty;
+            this.originalTargetX = tx; this.originalTargetY = ty;
+            this.state = 'converging'; this.startX = this.x; this.startY = this.y; this.convergeTime = 0;
+            
+            // Animation-specific target assignments
+            if (this.animationType === 'typewriter') {
+                this.typewriterDelay = Math.random() * 100;
+            }
+        }
+
+        update(fw) {
+            // Store trail position
+            if (this.trailPositions.length >= this.maxTrailLength) {
+                this.trailPositions.shift();
+            }
+            this.trailPositions.push({ x: this.x, y: this.y });
+
+            switch (this.animationType) {
+                case 'classic': return this.updateClassic(fw);
+                case 'wave': return this.updateWave(fw);
+                case 'spiral': return this.updateSpiral(fw);
+                case 'typewriter': return this.updateTypewriter(fw);
+                case 'magnetic': return this.updateMagnetic(fw);
+                case 'phoenix': return this.updatePhoenix(fw);
+                case 'matrix': return this.updateMatrix(fw);
+                default: return this.updateClassic(fw);
+            }
+        }
+
+        updateClassic(fw) {
+            switch (this.state) {
+                case 'exploding':
+                    this.x += this.vx; this.y += this.vy; this.vy += this.gravity;
+                    this.vx *= this.friction; this.vy *= this.friction;
+                    break;
+                case 'converging':
+                    if (this.convergeTime < this.convergeDuration) {
+                        const p = this.convergeTime / this.convergeDuration;
+                        const ep = 1 - Math.pow(1 - p, 4);
+                        this.x = this.startX + (this.targetX - this.startX) * ep;
+                        this.y = this.startY + (this.targetY - this.startY) * ep;
+                        this.convergeTime++;
+                    } else {
+                        this.x = this.targetX; this.y = this.targetY; this.state = 'holding';
+                    }
+                    break;
+                case 'holding':
+                    if (!this.hasFlashed) { this.size *= 2; this.hasFlashed = true; }
+                    else { this.size = Math.max(1.5, this.size * 0.95); }
+                    if (this.holdTime++ > this.maxHoldTime) {
+                        this.state = 'falling'; this.vx = (Math.random() - 0.5) * 2; this.vy = (Math.random() - 0.5) * 2;
+                    }
+                    break;
+                case 'falling':
+                    this.x += this.vx; this.y += this.vy; this.vy += this.gravity;
+                    this.vx *= this.friction; this.vy *= this.friction; this.life--;
+                    if (this.canSpark && Math.random() < 0.03) {
+                        fw.createSecondarySparks(this.x, this.y, this.color); this.canSpark = false;
+                    }
+                    break;
+            }
+            if (this.state !== 'falling') this.life--;
+            return this.life > 0 && this.y < fw.canvas.height + 50;
+        }
+
+        updateWave(fw) {
+            switch (this.state) {
+                case 'exploding':
+                    this.x += this.vx; this.y += this.vy; this.vy += this.gravity;
+                    this.vx *= this.friction; this.vy *= this.friction;
+                    break;
+                case 'converging':
+                    if (this.convergeTime < this.convergeDuration) {
+                        const p = this.convergeTime / this.convergeDuration;
+                        const waveOffset = Math.sin(this.wavePhase + p * Math.PI * 4) * this.waveAmplitude * (1 - p);
+                        this.x = this.startX + (this.targetX - this.startX) * p + waveOffset;
+                        this.y = this.startY + (this.targetY - this.startY) * p;
+                        this.convergeTime++;
+                    } else {
+                        this.state = 'holding';
+                    }
+                    break;
+                case 'holding':
+                    const waveTime = this.holdTime * 0.1;
+                    this.x = this.targetX + Math.sin(this.wavePhase + waveTime) * 3;
+                    this.y = this.targetY + Math.cos(this.wavePhase + waveTime) * 2;
+                    if (!this.hasFlashed) { this.size *= 1.5; this.hasFlashed = true; }
+                    if (this.holdTime++ > this.maxHoldTime) {
+                        this.state = 'waveDissolve'; this.dissolveTime = 0;
+                    }
+                    break;
+                case 'waveDissolve':
+                    const dissolveP = this.dissolveTime / 60;
+                    this.y -= Math.sin(dissolveP * Math.PI) * 5;
+                    this.size *= 0.95; this.life -= 2;
+                    this.dissolveTime++;
+                    break;
+            }
+            if (this.state !== 'waveDissolve') this.life--;
+            return this.life > 0 && this.size > 0.1;
+        }
+
+        updateSpiral(fw) {
+            switch (this.state) {
+                case 'exploding':
+                    this.x += this.vx; this.y += this.vy; this.vy += this.gravity * 0.5;
+                    this.vx *= this.friction; this.vy *= this.friction;
+                    break;
+                case 'converging':
+                    if (this.convergeTime < this.convergeDuration) {
+                        const p = this.convergeTime / this.convergeDuration;
+                        this.spiralAngle += 0.3;
+                        this.spiralRadius = 100 * (1 - p);
+                        const spiralX = Math.cos(this.spiralAngle) * this.spiralRadius;
+                        const spiralY = Math.sin(this.spiralAngle) * this.spiralRadius;
+                        this.x = this.startX + (this.targetX - this.startX) * p + spiralX;
+                        this.y = this.startY + (this.targetY - this.startY) * p + spiralY;
+                        this.convergeTime++;
+                    } else {
+                        this.state = 'spiralHold';
+                    }
+                    break;
+                case 'spiralHold':
+                    this.spiralAngle += 0.1;
+                    const holdRadius = 5 + Math.sin(this.holdTime * 0.1) * 3;
+                    this.x = this.targetX + Math.cos(this.spiralAngle) * holdRadius;
+                    this.y = this.targetY + Math.sin(this.spiralAngle) * holdRadius;
+                    if (this.holdTime++ > this.maxHoldTime) {
+                        this.state = 'spiralExpand';
+                    }
+                    break;
+                case 'spiralExpand':
+                    this.spiralAngle += 0.2;
+                    this.spiralRadius += 2;
+                    this.x = this.targetX + Math.cos(this.spiralAngle) * this.spiralRadius;
+                    this.y = this.targetY + Math.sin(this.spiralAngle) * this.spiralRadius;
+                    this.size *= 0.98; this.life -= 2;
+                    break;
+            }
+            if (this.state !== 'spiralExpand') this.life--;
+            return this.life > 0 && this.size > 0.1;
+        }
+
+        updateTypewriter(fw) {
+            switch (this.state) {
+                case 'exploding':
+                    this.x += this.vx * 0.5; this.y += this.vy * 0.5;
+                    this.vx *= 0.95; this.vy *= 0.95;
+                    break;
+                case 'converging':
+                    if (this.typewriterDelay > 0) {
+                        this.typewriterDelay--;
+                        return true;
+                    }
+                    if (this.convergeTime < this.convergeDuration) {
+                        const p = Math.min(1, this.convergeTime / (this.convergeDuration * 0.3));
+                        this.x = this.startX + (this.targetX - this.startX) * p;
+                        this.y = this.startY + (this.targetY - this.startY) * p;
+                        this.convergeTime++;
+                    } else {
+                        this.state = 'typing';
+                        this.size = 0;
+                    }
+                    break;
+                case 'typing':
+                    this.size = Math.min(2, this.size + 0.2);
+                    this.x = this.targetX; this.y = this.targetY;
+                    if (this.holdTime++ > this.maxHoldTime) {
+                        this.state = 'fadeOut';
+                    }
+                    break;
+                case 'fadeOut':
+                    this.size *= 0.92; this.life -= 3;
+                    break;
+            }
+            if (this.state !== 'fadeOut') this.life--;
+            return this.life > 0 && this.size > 0.05;
+        }
+
+        updateMagnetic(fw) {
+            switch (this.state) {
+                case 'exploding':
+                    this.x += this.vx; this.y += this.vy;
+                    this.vx *= 0.98; this.vy *= 0.98;
+                    break;
+                case 'converging':
+                    if (this.convergeTime < this.convergeDuration) {
+                        const p = this.convergeTime / this.convergeDuration;
+                        const magnetic = Math.sin(p * Math.PI) * this.magneticCharge * 20;
+                        this.x = this.startX + (this.targetX - this.startX) * p + magnetic;
+                        this.y = this.startY + (this.targetY - this.startY) * p;
+                        this.convergeTime++;
+                    } else {
+                        this.state = 'magneticHold';
+                    }
+                    break;
+                case 'magneticHold':
+                    const magneticPulse = Math.sin(this.holdTime * 0.2) * 2;
+                    this.x = this.targetX + magneticPulse * this.magneticCharge;
+                    this.size = 1.5 + Math.abs(magneticPulse) * 0.2;
+                    if (this.holdTime++ > this.maxHoldTime) {
+                        this.state = 'magneticRepel';
+                        this.vx = this.magneticCharge * 3;
+                        this.vy = (Math.random() - 0.5) * 4;
+                    }
+                    break;
+                case 'magneticRepel':
+                    this.x += this.vx; this.y += this.vy;
+                    this.vy += this.gravity; this.vx *= 0.95; this.vy *= 0.95;
+                    this.size *= 0.97; this.life -= 2;
+                    break;
+            }
+            if (this.state !== 'magneticRepel') this.life--;
+            return this.life > 0 && this.size > 0.1;
+        }
+
+        updatePhoenix(fw) {
+            switch (this.state) {
+                case 'exploding':
+                    this.x += this.vx; this.y += this.vy + 2;
+                    this.vx *= 0.95; this.vy *= 0.95;
+                    this.size *= 0.98;
+                    break;
+                case 'converging':
+                    if (this.convergeTime < this.convergeDuration) {
+                        const p = this.convergeTime / this.convergeDuration;
+                        this.phoenixRiseSpeed = Math.sin(p * Math.PI) * 5;
+                        this.x = this.startX + (this.targetX - this.startX) * p;
+                        this.y = this.startY + (this.targetY - this.startY) * p - this.phoenixRiseSpeed;
+                        this.convergeTime++;
+                    } else {
+                        this.state = 'phoenixRise';
+                        this.size = 0.5;
+                    }
+                    break;
+                case 'phoenixRise':
+                    this.size = Math.min(2.5, this.size + 0.1);
+                    this.y -= 0.5;
+                    if (this.holdTime++ > this.maxHoldTime) {
+                        this.state = 'phoenixBurn';
+                    }
+                    break;
+                case 'phoenixBurn':
+                    this.size += 0.2;
+                    this.y -= 1;
+                    this.life -= 4;
+                    if (Math.random() < 0.1) {
+                        fw.createSecondarySparks(this.x + (Math.random() - 0.5) * 10, this.y, this.color);
+                    }
+                    break;
+            }
+            if (this.state !== 'phoenixBurn') this.life--;
+            return this.life > 0;
+        }
+
+        updateMatrix(fw) {
+            switch (this.state) {
+                case 'exploding':
+                    this.y += this.matrixFallSpeed;
+                    this.x += (Math.random() - 0.5) * 0.5;
+                    if (this.y > fw.canvas.height * 0.2) {
+                        this.state = 'converging';
+                        this.startY = this.y;
+                    }
+                    break;
+                case 'converging':
+                    if (this.convergeTime < this.convergeDuration) {
+                        const p = this.convergeTime / this.convergeDuration;
+                        this.x = this.startX + (this.targetX - this.startX) * p;
+                        this.y = this.startY + (this.targetY - this.startY) * p;
+                        this.convergeTime++;
+                    } else {
+                        this.state = 'matrixGlow';
+                    }
+                    break;
+                case 'matrixGlow':
+                    this.pulsePhase += 0.2;
+                    this.size = 1.5 + Math.sin(this.pulsePhase) * 0.5;
+                    if (this.holdTime++ > this.maxHoldTime) {
+                        this.state = 'matrixFade';
+                    }
+                    break;
+                case 'matrixFade':
+                    this.size *= 0.9;
+                    this.y += 1;
+                    this.life -= 3;
+                    break;
+            }
+            if (this.state !== 'matrixFade') this.life--;
+            return this.life > 0 && this.size > 0.1;
+        }
+
+        draw(ctx) {
+            let alpha = (this.state === 'falling' || this.state?.includes('Fade') || this.state?.includes('Dissolve')) 
+                ? Math.max(0, this.life / (this.maxLife * 0.5)) : 1;
+            
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+
+            // Draw trail for certain animations
+            if (['spiral', 'phoenix', 'magnetic'].includes(this.animationType) && this.trailPositions.length > 1) {
+                for (let i = 0; i < this.trailPositions.length - 1; i++) {
+                    const trailAlpha = (i / this.trailPositions.length) * alpha * 0.3;
+                    const pos = this.trailPositions[i];
+                    const trailSize = this.size * (i / this.trailPositions.length);
+                    
+                    ctx.fillStyle = `rgba(${this.color}, ${trailAlpha})`;
+                    ctx.beginPath();
+                    ctx.arc(pos.x, pos.y, trailSize, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            const glowSize = this.size * 2.5;
+            const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowSize);
+            gradient.addColorStop(0, `rgba(${this.color}, ${alpha * 0.8})`);
+            gradient.addColorStop(0.5, `rgba(${this.color}, ${alpha * 0.2})`);
+            gradient.addColorStop(1, `rgba(${this.color}, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size * 0.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+        }
+    }
+    
+    const colorSchemes = {
+        electric: '0,212,255', fire: '255,100,0', neon: '0,255,100', 
+        purple: '150,50,255', gold: '255,215,0',
+        rainbow: ['255,0,0', '255,127,0', '255,255,0', '0,255,0', '0,0,255', '150,0,255']
+    };
+
+    class AdvancedTextFireworks {
+        constructor() {
+            this.canvas = document.getElementById('fireworksCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.particles = []; this.isRunning = false;
+            this.textEngine = new CanvasTextEngine(); this.hasActiveParticles = false;
+            this.PARTICLE_BUDGET = 3000;
+            this.resize(); window.addEventListener('resize', () => this.resize());
+        }
+        
+        resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; }
+
+        launch(text, font, colorScheme, animationType = 'classic') {
+            this.stop();
+            const centerX = this.canvas.width / 2;
+            const launchY = this.canvas.height;
+            const explosionY = this.canvas.height * 0.45;
+            
+            if (animationType === 'matrix') {
+                this.createMatrixLaunch(text, font, colorScheme, centerX);
+            } else {
+                this.createLaunchTrail(centerX, launchY, explosionY);
+                setTimeout(() => this.createTextExplosion(text, font, colorScheme, centerX, explosionY, animationType), 800);
+            }
+            
+            if (!this.isRunning) { this.isRunning = true; this.animate(); }
+        }
+
+        createMatrixLaunch(text, font, colorScheme, centerX) {
+            let density = 4;
+            let textCoords = this.textEngine.generateTextCoordinates(text, font, density);
+            while (textCoords.length > this.PARTICLE_BUDGET) {
+                density++;
+                textCoords = this.textEngine.generateTextCoordinates(text, font, density);
+            }
+            if (textCoords.length === 0) return;
+
+            const colors = Array.isArray(colorSchemes[colorScheme]) ? colorSchemes[colorScheme] : [colorSchemes[colorScheme]];
+            const explosionY = this.canvas.height * 0.45;
+            
+            for (let i = 0; i < textCoords.length; i++) {
+                const color = colors[i % colors.length];
+                const x = centerX + textCoords[i].x + (Math.random() - 0.5) * 100;
+                const particle = new TextParticle(x, -50, 0, 0, color, 400, 1.5, 'matrix');
+                particle.assignTarget(centerX + textCoords[i].x, explosionY + textCoords[i].y);
+                this.particles.push(particle);
+            }
+        }
+
+        createTextExplosion(text, font, colorScheme, x, y, animationType) {
+            let density = 4;
+            let textCoords = this.textEngine.generateTextCoordinates(text, font, density);
+            while (textCoords.length > this.PARTICLE_BUDGET) {
+                density++;
+                textCoords = this.textEngine.generateTextCoordinates(text, font, density);
+            }
+            if (textCoords.length === 0) return;
+
+            const colors = Array.isArray(colorSchemes[colorScheme]) ? colorSchemes[colorScheme] : [colorSchemes[colorScheme]];
+            
+            // Create explosion particles based on animation type
+            const explosionParticles = Math.max(textCoords.length, 350);
+            for (let i = 0; i < explosionParticles; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                let speed = 4 + Math.random() * 8;
+                
+                // Adjust explosion behavior per animation type
+                switch (animationType) {
+                    case 'wave':
+                        speed *= 0.7;
+                        break;
+                    case 'spiral':
+                        speed *= 1.2;
+                        break;
+                    case 'typewriter':
+                        speed *= 0.3;
+                        break;
+                    case 'phoenix':
+                        speed *= 0.5;
+                        break;
+                }
+                
+                const color = colors[i % colors.length];
+                this.particles.push(new TextParticle(
+                    x, y, 
+                    Math.cos(angle) * speed, 
+                    Math.sin(angle) * speed, 
+                    color, 
+                    300 + Math.random() * 100, 
+                    1.5, 
+                    animationType
+                ));
+            }
+
+            // Assign targets with animation-specific delays
+            const assignTargets = () => {
+                textCoords.sort(() => 0.5 - Math.random());
+                for (let i = 0; i < textCoords.length; i++) {
+                    if (this.particles[i]) {
+                        this.particles[i].assignTarget(x + textCoords[i].x, y + textCoords[i].y);
+                    }
+                }
+            };
+
+            // Different timing for different animations
+            switch (animationType) {
+                case 'typewriter':
+                    setTimeout(assignTargets, 100);
+                    break;
+                case 'wave':
+                    setTimeout(assignTargets, 200);
+                    break;
+                case 'spiral':
+                    setTimeout(assignTargets, 250);
+                    break;
+                case 'phoenix':
+                    setTimeout(assignTargets, 400);
+                    break;
+                default:
+                    setTimeout(assignTargets, 300);
+            }
+        }
+        
+        createSecondarySparks(x, y, color) {
+            const count = 3 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < count; i++) {
+                this.particles.push(new TextParticle(
+                    x, y, 
+                    (Math.random() - 0.5) * 2, 
+                    (Math.random() - 0.5) * 2, 
+                    color, 
+                    40 + Math.random() * 30, 
+                    1
+                ));
+            }
+        }
+
+        createLaunchTrail(startX, startY, targetY) {
+            const count = 30;
+            const duration = 800;
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => {
+                    const p = i / count;
+                    const y = startY - p * (startY - targetY);
+                    this.particles.push(new TextParticle(
+                        startX + (Math.random() - 0.5) * 8, 
+                        y, 
+                        (Math.random() - 0.5) * 2, 
+                        -3 + Math.random(), 
+                        '255,220,150', 
+                        60, 
+                        2
+                    ));
+                }, i * (duration / count));
+            }
+        }
+        
+        animate() {
+            if (!this.isRunning) return;
+            
+            // Dynamic background fade based on particle count and types
+            const fadeIntensity = Math.min(0.15, 0.05 + (this.particles.length / 5000));
+            this.ctx.fillStyle = `rgba(10, 10, 25, ${fadeIntensity})`;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            const next = [];
+            for (const particle of this.particles) {
+                if (particle.update(this)) {
+                    particle.draw(this.ctx);
+                    next.push(particle);
+                }
+            }
+            this.particles = next;
+            
+            if (this.particles.length > 0) this.hasActiveParticles = true;
+            if (this.hasActiveParticles && this.particles.length === 0) {
+                this.stop();
+            } else {
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        stop() {
+            this.isRunning = false;
+            this.hasActiveParticles = false;
+            this.particles = [];
+            setTimeout(() => {
+                if (!this.isRunning) {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                }
+            }, 200);
+        }
+    }
+    
+    const fireworks = new AdvancedTextFireworks();
+    
+    function setText(text) {
+        document.getElementById('textInput').value = text;
+        updatePreview();
+    }
+    
+    function launchFireworks() {
+        const text = document.getElementById('textInput').value.trim();
+        if (!text) return;
+        
+        const font = document.getElementById('fontSelector').value;
+        const color = document.getElementById('colorSelector').value;
+        const animation = document.getElementById('animationSelector').value;
+        
+        fireworks.launch(text, font, color, animation);
+    }
+    
+    function updatePreview() {
+        const text = document.getElementById('textInput').value || '...';
+        const font = document.getElementById('fontSelector').value;
+        
+        document.getElementById('previewText').textContent = text;
+        document.getElementById('previewText').style.fontFamily = font;
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('launchBtn').addEventListener('click', launchFireworks);
+        
+        document.querySelectorAll('.suggestion').forEach(button => {
+            button.addEventListener('click', () => {
+                setText(button.dataset.text);
+                launchFireworks();
+            });
+        });
+        
+        document.getElementById('textInput').addEventListener('input', updatePreview);
+        document.getElementById('fontSelector').addEventListener('change', updatePreview);
+        document.getElementById('animationSelector').addEventListener('change', updatePreview);
+        
+        document.getElementById('textInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                launchFireworks();
+            }
+        });
+        
+        updatePreview();
+        setTimeout(launchFireworks, 1000);
+    });
+</script>
+</body>
+</html>
