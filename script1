@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizable Text Fireworks</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&family=Creepster&family=Monoton&family=Fascinate&family=Nosifer&family=Butcherman&family=Metal+Mania&family=Fredericka+the+Great&family=Kalam:wght@700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+code
+Code
+download
+content_copy
+expand_less
+
+body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+        min-height: 100vh;
+        overflow-x: hidden;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        text-align: center;
+        z-index: 1001;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(15px);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        max-width: 320px;
+        width: 320px;
+    }
+    
+    h1 {
+        color: #fff;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+        font-weight: 900;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24);
+        background-size: 400% 400%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: gradientShift 3s ease infinite;
+    }
+    
+    @keyframes gradientShift {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .input-group {
+        margin-bottom: 15px;
+    }
+    
+    label {
+        display: block;
+        color: #fff;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 0.9em;
+    }
+    
+    input[type="text"] {
+        width: 100%;
+        padding: 10px 15px;
+        font-size: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        text-align: center;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    input[type="text"]:focus {
+        outline: none;
+        border-color: #4ecdc4;
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+    }
+    
+    input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .option-group {
+        text-align: left;
+    }
+    
+    .option-group label {
+        font-size: 12px;
+        margin-bottom: 5px;
+    }
+    
+    select, input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        font-size: 12px;
+    }
+    
+    .color-options {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin: 10px 0;
+    }
+    
+    .color-option {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .color-option:hover, .color-option.selected {
+        border-color: #fff;
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+    
+    .rainbow { background: conic-gradient(from 0deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff00, #00ff80, #00ffff, #0080ff, #0000ff, #8000ff, #ff00ff, #ff0080, #ff0000); }
+    .sunset { background: linear-gradient(45deg, #ff6b6b, #ffa726, #ffca28); }
+    .ocean { background: linear-gradient(45deg, #4ecdc4, #44a08d, #093637); }
+    .cosmic { background: linear-gradient(45deg, #667eea, #764ba2, #f093fb); }
+    .fire { background: linear-gradient(45deg, #ff4757, #ff3838, #ff9500); }
+    .forest { background: linear-gradient(45deg, #11998e, #38ef7d, #2ed573); }
+    
+    .btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        margin: 5px;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        background: linear-gradient(45deg, #764ba2, #667eea);
+    }
+    
+    .btn:active {
+        transform: translateY(-1px);
+    }
+    
+    .btn.stop-btn {
+        background: linear-gradient(45deg, #ff4757, #c44569);
+        box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+    }
+    
+    .btn.stop-btn:hover {
+        background: linear-gradient(45deg, #c44569, #ff4757);
+        box-shadow: 0 8px 20px rgba(255, 71, 87, 0.4);
+    }
+    
+    .controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    @media (max-width: 600px) {
+        .container {
+            bottom: 10px;
+            right: 10px;
+            left: 10px;
+            width: auto;
+            max-width: none;
+            padding: 15px;
+        }
+        
+        h1 {
+            font-size: 1.2em;
+        }
+        
+        .options {
+            grid-template-columns: 1fr;
+        }
+        
+        .controls {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .btn {
+            width: 100%;
+            margin: 3px 0;
+        }
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Text Fireworks ✨</h1>
+
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+<div class="input-group">
+        <label for="customText">Enter Your Text:</label>
+        <input type="text" id="customText" placeholder="Type your message here..." maxlength="50">
+    </div>
+    
+    <div class="options">
+        <div class="option-group">
+            <label for="fontFamily">Font Style:</label>
+            <select id="fontFamily">
+                <option value="Inter">Inter (Default)</option>
+                <option value="Creepster">Horror</option>
+                <option value="Monoton">Retro Chrome</option>
+                <option value="Fascinate">Victorian</option>
+                <option value="Nosifer">Gothic</option>
+                <option value="Butcherman">Grunge</option>
+                <option value="Metal Mania">Heavy Metal</option>
+                <option value="Fredericka the Great">Elegant Script</option>
+                <option value="Kalam">Handwritten</option>
+            </select>
+        </div>
+        
+        <div class="option-group">
+            <label for="textAnimation">Text Animation:</label>
+            <select id="textAnimation">
+                <option value="typewriter">Typewriter</option>
+                <option value="spiral">Spiral In</option>
+                <option value="wave">Wave</option>
+                <option value="matrix">Matrix Drop</option>
+                <option value="burst">Burst In</option>
+                <option value="slide">Multi-Slide</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="input-group">
+        <label>Color Theme:</label>
+        <div class="color-options">
+            <div class="color-option rainbow selected" data-theme="rainbow" title="Rainbow"></div>
+            <div class="color-option sunset" data-theme="sunset" title="Sunset"></div>
+            <div class="color-option ocean" data-theme="ocean" title="Ocean"></div>
+            <div class="color-option cosmic" data-theme="cosmic" title="Cosmic"></div>
+            <div class="color-option fire" data-theme="fire" title="Fire"></div>
+            <div class="color-option forest" data-theme="forest" title="Forest"></div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="btn" onclick="startFireworks()">🎆 Launch Fireworks</button>
+        <button class="btn stop-btn" onclick="stopFireworks()">🛑 Stop</button>
+    </div>
+</div>
+
+<script>
+    // Fireworks Particle Class
+    class FireworksParticle {
+        constructor(x, y, vx, vy, color, life, size = 2) {
+            this.x = x;
+            this.y = y;
+            this.vx = vx;
+            this.vy = vy;
+            this.color = color;
+            this.life = life;
+            this.maxLife = life;
+            this.size = size;
+            this.gravity = 0.02;
+            this.friction = 0.98;
+            this.isCakePart = false;
+            this.formationProgress = 0;
+            this.targetX = x;
+            this.targetY = y;
+            this.baseY = y;
+            this.isFlame = false;
+            this.flameOffset = 0;
+        }
+
+        update() {
+            if (this.isCakePart && this.formationProgress < 1) {
+                this.formationProgress = Math.min(1, this.formationProgress + 0.02);
+                const easeProgress = 1 - Math.pow(1 - this.formationProgress, 3);
+                
+                this.x = this.x + (this.targetX - this.x) * easeProgress * 0.1;
+                this.y = this.y + (this.targetY - this.y) * easeProgress * 0.1;
+                
+                if (this.isFlame) {
+                    this.y = this.baseY + Math.sin(Date.now() * 0.01 + this.flameOffset) * 3;
+                    this.x = this.targetX + Math.cos(Date.now() * 0.008 + this.flameOffset) * 2;
+                }
+            } else if (!this.isCakePart) {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+            } else if (this.isFlame) {
+                this.y = this.baseY + Math.sin(Date.now() * 0.01 + this.flameOffset) * 3;
+                this.x = this.targetX + Math.cos(Date.now() * 0.008 + this.flameOffset) * 2;
+            }
+            
+            this.life--;
+        }
+
+        draw(ctx) {
+            const alpha = this.life / this.maxLife;
+            const brightness = Math.min(1, alpha * 1.5);
+            
+            ctx.save();
+            ctx.globalCompositeOperation = 'screen';
+            
+            const glowSize = this.size * (this.isFlame ? 4 : 3);
+            const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowSize);
+            gradient.addColorStop(0, `rgba(${this.color}, ${brightness * 0.8})`);
+            gradient.addColorStop(0.5, `rgba(${this.color}, ${brightness * 0.4})`);
+            gradient.addColorStop(1, `rgba(${this.color}, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = `rgba(${this.color}, ${brightness})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        isDead() {
+            return this.life <= 0;
+        }
+    }
+
+    // Text Particle Class
+    class TextParticle {
+        constructor(x, y, char, targetX, targetY, color, fontSize, lineIndex, charIndex, fontFamily, animationType) {
+            this.x = x;
+            this.y = y;
+            this.startX = x;
+            this.startY = y;
+            this.char = char;
+            this.targetX = targetX;
+            this.targetY = targetY;
+            this.color = color;
+            this.fontSize = fontSize;
+            this.lineIndex = lineIndex;
+            this.charIndex = charIndex;
+            this.fontFamily = fontFamily;
+            this.animationType = animationType;
+            this.life = 400;
+            this.maxLife = 400;
+            this.element = null;
+            
+            // Animation system
+            this.phase = 'appearing';
+            this.appearTime = 0;
+            this.appearDuration = this.getAppearDuration();
+            this.stableTime = 0;
+            this.stableDuration = 120;
+            this.fallSpeed = 0;
+            this.rotation = 0;
+            this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+            this.scale = 0;
+            this.opacity = 0;
+            this.hasTriggeredExplosion = false;
+            this.fireworksSystem = null;
+            
+            // Animation-specific properties
+            this.initializeAnimationProperties();
+        }
+
+        getAppearDuration() {
+            switch (this.animationType) {
+                case 'typewriter': return 60 + (this.lineIndex * 20) + (this.charIndex * 3);
+                case 'spiral': return 80 + (this.charIndex * 2);
+                case 'wave': return 60 + Math.abs(Math.sin(this.charIndex * 0.5)) * 40;
+                case 'matrix': return 40 + (this.charIndex * 1);
+                case 'burst': return 50;
+                case 'slide': return 60 + (this.lineIndex * 15) + (this.charIndex * 2);
+                default: return 60;
+            }
+        }
+
+        initializeAnimationProperties() {
+            switch (this.animationType) {
+                case 'typewriter':
+                    this.typewriterDelay = this.lineIndex * 40 + this.charIndex * 8;
+                    this.isVisible = false;
+                    break;
+                case 'spiral':
+                    const spiralAngle = this.charIndex * 0.8;
+                    const spiralRadius = 300;
+                    this.x = this.targetX + Math.cos(spiralAngle) * spiralRadius;
+                    this.y = this.targetY + Math.sin(spiralAngle) * spiralRadius;
+                    this.spiralProgress = 0;
+                    break;
+                case 'wave':
+                    this.waveOffset = this.charIndex * 0.5;
+                    this.waveAmplitude = 50;
+                    this.x = this.targetX;
+                    this.y = this.targetY - 200;
+                    break;
+                case 'matrix':
+                    this.x = this.targetX;
+                    this.y = -50 - Math.random() * 200;
+                    this.matrixSpeed = 2 + Math.random() * 3;
+                    break;
+                case 'burst':
+                    const burstAngle = Math.random() * Math.PI * 2;
+                    const burstDistance = 150 + Math.random() * 100;
+                    this.x = this.targetX + Math.cos(burstAngle) * burstDistance;
+                    this.y = this.targetY + Math.sin(burstAngle) * burstDistance;
+                    break;
+                case 'slide':
+                    const slideDirections = [
+                        { x: -200, y: 0 },     // from left
+                        { x: 200, y: 0 },      // from right
+                        { x: 0, y: -200 },     // from top
+                        { x: 0, y: 200 }       // from bottom
+                    ];
+                    const slideDir = slideDirections[this.lineIndex % 4];
+                    this.x = this.targetX + slideDir.x;
+                    this.y = this.targetY + slideDir.y;
+                    break;
+            }
+        }
+
+        setFireworksSystem(system) {
+            this.fireworksSystem = system;
+        }
+
+        update() {
+            switch (this.animationType) {
+                case 'typewriter':
+                    this.updateTypewriter();
+                    break;
+                case 'spiral':
+                    this.updateSpiral();
+                    break;
+                case 'wave':
+                    this.updateWave();
+                    break;
+                case 'matrix':
+                    this.updateMatrix();
+                    break;
+                case 'burst':
+                    this.updateBurst();
+                    break;
+                case 'slide':
+                    this.updateSlide();
+                    break;
+                default:
+                    this.updateDefault();
+            }
+            
+            this.life--;
+            this.updateElement();
+        }
+
+        updateTypewriter() {
+            if (this.phase === 'appearing') {
+                if (this.appearTime >= this.typewriterDelay && !this.isVisible) {
+                    this.isVisible = true;
+                    this.opacity = 1;
+                    this.scale = 1;
+                    this.x = this.targetX;
+                    this.y = this.targetY;
+                }
+                this.appearTime++;
+                if (this.isVisible && this.appearTime >= this.typewriterDelay + 30) {
+                    this.phase = 'stable';
+                }
+            } else if (this.phase === 'stable') {
+                this.updateStablePhase();
+            } else if (this.phase === 'falling') {
+                this.updateFallingPhase();
+            }
+        }
+
+        updateSpiral() {
+            if (this.phase === 'appearing') {
+                this.spiralProgress = Math.min(1, this.spiralProgress + 0.02);
+                const easeProgress = 1 - Math.pow(1 - this.spiralProgress, 3);
+                
+                const spiralAngle = this.charIndex * 0.8 * (1 - easeProgress);
+                const spiralRadius = 300 * (1 - easeProgress);
+                
+                this.x = this.targetX + Math.cos(spiralAngle) * spiralRadius;
+                this.y = this.targetY + Math.sin(spiralAngle) * spiralRadius;
+                this.scale = easeProgress;
+                this.opacity = easeProgress;
+                this.rotation = spiralAngle * 2;
+                
+                if (this.spiralProgress >= 1) {
+                    this.phase = 'stable';
+                    this.rotation = 0;
+                }
+            } else if (this.phase === 'stable') {
+                this.updateStablePhase();
+            } else if (this.phase === 'falling') {
+                this.updateFallingPhase();
+            }
+        }
+
+        updateWave() {
+            if (this.phase === 'appearing') {
+                const progress = this.appearTime / this.appearDuration;
+                const waveY = Math.sin(Date.now() * 0.01 + this.waveOffset) * this.waveAmplitude * (1 - progress);
+                
+                this.x = this.targetX;
+                this.y = this.targetY - 200 * (1 - progress) + waveY;
+                this.scale = progress;
+                this.opacity = progress;
+                
+                this.appearTime++;
+                if (progress >= 1) {
+                    this.phase = 'stable';
+                    this.y = this.targetY;
+                }
+            } else if (this.phase === 'stable') {
+                // Continuous wave effect
+                const waveY = Math.sin(Date.now() * 0.003 + this.waveOffset) * 8;
+                this.y = this.targetY + waveY;
+                this.updateStablePhase();
+            } else if (this.phase === 'falling') {
+                this.updateFallingPhase();
+            }
+        }
+
+        updateMatrix() {
+            if (this.phase === 'appearing') {
+                this.y += this.matrixSpeed;
+                this.opacity = Math.min(1, (this.targetY - this.y) / 100);
+                this.scale = 1;
+                
+                // Add matrix-like glitch effect
+                if (Math.random() < 0.1) {
+                    this.x = this.targetX + (Math.random() - 0.5) * 10;
+                } else {
+                    this.x = this.targetX;
+                }
+                
+                if (this.y >= this.targetY) {
+                    this.phase = 'stable';
+                    this.y = this.targetY;
+                    this.x = this.targetX;
+                }
+            } else if (this.phase === 'stable') {
+                // Occasional glitch
+                if (Math.random() < 0.02) {
+                    this.x = this.targetX + (Math.random() - 0.5) * 5;
+                } else {
+                    this.x = this.targetX;
+                }
+                this.updateStablePhase();
+            } else if (this.phase === 'falling') {
+                this.updateFallingPhase();
+            }
+        }
+
+        updateBurst() {
+            if (this.phase === 'appearing') {
+                const progress = this.appearTime / this.appearDuration;
+                const easeProgress = 1 - Math.pow(1 - progress, 4);
+                
+                this.x = this.x + (this.targetX - this.x) * easeProgress * 0.15;
+                this.y = this.y + (this.targetY - this.y) * easeProgress * 0.15;
+                this.scale = easeProgress;
+                this.opacity = progress;
+                this.rotation = (1 - easeProgress) * Math.PI * 4;
+                
+                this.appearTime++;
+                if (progress >= 1) {
+                    this.phase = 'stable';
+                    this.rotation = 0;
+                }
+            } else if (this.phase === 'stable') {
+                this.updateStablePhase();
+            } else if (this.phase === 'falling') {
+                this.updateFallingPhase();
+            }
+        }
+
+        updateSlide() {
+            if (this.phase === 'appearing') {
+                const progress = this.appearTime / this.appearDuration;
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                this.x = this.x + (this.targetX - this.x) * easeProgress * 0.1;
+                this.y = this.y + (this.targetY - this.y) * easeProgress * 0.1;
+                this.scale = easeProgress;
+                this.opacity = progress;
+                
+                this.appearTime++;
+                if (progress >= 1) {
+                    this.phase = 'stable';
+                    this.x = this.targetX;
+                    this.y = this.targetY;
+                }
+            } else if (this.phase === 'stable') {
+                this.updateStablePhase();
+            } else if (this.phase === 'falling') {
+                this.updateFallingPhase();
+            }
+        }
+
+        updateDefault() {
+            // Same as slide for fallback
+            this.updateSlide();
+        }
+
+        updateStablePhase() {
+            // Gentle floating animation
+            const floatOffset = Math.sin(Date.now() * 0.003 + this.charIndex * 0.5) * 3;
+            if (this.animationType !== 'wave') { // Don't override wave's Y movement
+                this.y = this.targetY + floatOffset;
+            }
+            
+            // Gentle glow pulse
+            this.opacity = 0.9 + Math.sin(Date.now() * 0.004 + this.charIndex * 0.3) * 0.1;
+            
+            this.stableTime++;
+            if (this.stableTime >= this.stableDuration) {
+                this.phase = 'falling';
+                this.fallSpeed = 0.5;
+            }
+        }
+
+        updateFallingPhase() {
+            this.y += this.fallSpeed;
+            this.fallSpeed += 0.02; // gravity
+            this.rotation += this.rotationSpeed;
+            this.rotationSpeed += 0.001;
+            
+            // Trigger explosion when character falls off screen
+            if (!this.hasTriggeredExplosion && this.y > window.innerHeight * 0.8) {
+                this.hasTriggeredExplosion = true;
+                this.triggerSecondaryExplosion();
+            }
+        }
+
+        triggerSecondaryExplosion() {
+            const launchX = Math.random() * window.innerWidth;
+            const launchY = window.innerHeight;
+            const targetX = this.x;
+            const targetY = Math.random() * window.innerHeight * 0.3 + window.innerHeight * 0.2;
+            
+            // Parse color for particles
+            const colorMatch = this.color.match(/rgb\((\d+), (\d+), (\d+)\)/);
+            const particleColor = colorMatch ? `${colorMatch[1]}, ${colorMatch[2]}, ${colorMatch[3]}` : '255, 255, 255';
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const progress = i / 15;
+                    const currentX = launchX + (targetX - launchX) * progress;
+                    const currentY = launchY + (targetY - launchY) * progress;
+                    
+                    const trail = new FireworksParticle(
+                        currentX + (Math.random() - 0.5) * 6,
+                        currentY + (Math.random() - 0.5) * 6,
+                        (Math.random() - 0.5) * 2,
+                        -2 + Math.random() * 1,
+                        particleColor,
+                        30,
+                        1.5
+                    );
+                    this.fireworksSystem.particles.push(trail);
+                }, i * 25);
+            }
+            
+            setTimeout(() => {
+                this.createSecondaryExplosion(targetX, targetY, particleColor);
+            }, 400);
+        }
+
+        createSecondaryExplosion(x, y, baseColor) {
+            const patterns = ['burst', 'ring', 'spiral', 'fountain'];
+            const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+            
+            let particlesToCreate = [];
+            
+            switch (pattern) {
+                case 'burst':
+                    for (let i = 0; i < 40; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 3 + Math.random() * 8;
+                        particlesToCreate.push(new FireworksParticle(
+                            x, y,
+                            Math.cos(angle) * speed,
+                            Math.sin(angle) * speed,
+                            baseColor,
+                            80 + Math.random() * 40,
+                            1.5 + Math.random()
+                        ));
+                    }
+                    break;
+                    
+                case 'ring':
+                    for (let i = 0; i < 24; i++) {
+                        const angle = (Math.PI * 2 / 24) * i;
+                        const speed = 6 + Math.random() * 3;
+                        particlesToCreate.push(new FireworksParticle(
+                            x, y,
+                            Math.cos(angle) * speed,
+                            Math.sin(angle) * speed,
+                            baseColor,
+                            100,
+                            2
+                        ));
+                    }
+                    break;
+                    
+                case 'spiral':
+                    for (let i = 0; i < 30; i++) {
+                        const angle = (Math.PI * 4 / 30) * i;
+                        const radius = i * 0.3;
+                        const speed = 4 + Math.random() * 4;
+                        particlesToCreate.push(new FireworksParticle(
+                            x + Math.cos(angle) * radius,
+                            y + Math.sin(angle) * radius,
+                            Math.cos(angle) * speed,
+                            Math.sin(angle) * speed,
+                            baseColor,
+                            90,
+                            1.8
+                        ));
+                    }
+                    break;
+                    
+                case 'fountain':
+                    for (let i = 0; i < 35; i++) {
+                        const angle = -Math.PI/3 + (Math.PI/3) * Math.random();
+                        const speed = 5 + Math.random() * 6;
+                        particlesToCreate.push(new FireworksParticle(
+                            x + (Math.random() - 0.5) * 20,
+                            y,
+                            Math.cos(angle) * speed,
+                            Math.sin(angle) * speed,
+                            baseColor,
+                            120,
+                            1.5
+                        ));
+                    }
+                    break;
+            }
+            
+            if (this.fireworksSystem) {
+                this.fireworksSystem.particles.push(...particlesToCreate);
+            }
+        }
+
+        createElement() {
+            this.element = document.createElement('div');
+            this.element.className = 'text-char fireworks-text-char';
+            this.element.textContent = this.char;
+            this.element.style.cssText = `
+                position: absolute;
+                font-size: ${this.fontSize}px;
+                font-weight: 900;
+                color: ${this.color};
+                font-family: '${this.fontFamily}', sans-serif;
+                text-shadow: 
+                    2px 2px 4px rgba(0,0,0,0.8),
+                    0 0 10px ${this.color},
+                    0 0 20px ${this.color};
+                pointer-events: none;
+                z-index: 1000;
+                left: ${this.x}px;
+                top: ${this.y}px;
+                transform-origin: center center;
+            `;
+            document.body.appendChild(this.element);
+        }
+
+        updateElement() {
+            if (!this.element) this.createElement();
+            
+            this.element.style.left = this.x + 'px';
+            this.element.style.top = this.y + 'px';
+            this.element.style.opacity = this.opacity;
+            this.element.style.transform = `scale(${this.scale}) rotate(${this.rotation}rad)`;
+            this.element.style.color = this.color;
+            this.element.style.fontFamily = `'${this.fontFamily}', sans-serif`;
+            this.element.style.textShadow = `
+                2px 2px 4px rgba(0,0,0,0.8),
+                0 0 10px ${this.color},
+                0 0 20px ${this.color}`;
+        }
+
+        destroy() {
+            if (this.element) {
+                this.element.remove();
+                this.element = null;
+            }
+        }
+
+        isDead() {
+            return this.life <= 0;
+        }
+    }
+
+    // Main Fireworks System
+    class CustomFireworksSystem {
+        constructor() {
+            this.canvas = null;
+            this.ctx = null;
+            this.particles = [];
+            this.textParticles = [];
+            this.isRunning = false;
+            this.animationId = null;
+            this.currentTheme = 'rainbow';
+        }
+
+        initialize() {
+            if (this.canvas) return;
+            
+            this.canvas = document.createElement('canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.canvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                pointer-events: none;
+                z-index: 999;
+                background: transparent;
+            `;
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+            
+            document.body.appendChild(this.canvas);
+            
+            window.addEventListener('resize', () => {
+                if (this.canvas) {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                }
+            });
+        }
+
+        getThemeColors() {
+            const themes = {
+                rainbow: [
+                    { r: 255, g: 50, b: 100 },
+                    { r: 50, g: 255, b: 150 },
+                    { r: 100, g: 150, b: 255 },
+                    { r: 255, g: 200, b: 50 },
+                    { r: 200, g: 50, b: 255 },
+                    { r: 50, g: 255, b: 200 }
+                ],
+                sunset: [
+                    { r: 255, g: 107, b: 107 },
+                    { r: 255, g: 167, b: 38 },
+                    { r: 255, g: 202, b: 40 }
+                ],
+                ocean: [
+                    { r: 78, g: 205, b: 196 },
+                    { r: 68, g: 160, b: 141 },
+                    { r: 64, g: 224, b: 208 }
+                ],
+                cosmic: [
+                    { r: 102, g: 126, b: 234 },
+                    { r: 118, g: 75, b: 162 },
+                    { r: 240, g: 147, b: 251 }
+                ],
+                fire: [
+                    { r: 255, g: 71, b: 87 },
+                    { r: 255, g: 56, b: 56 },
+                    { r: 255, g: 149, b: 0 }
+                ],
+                forest: [
+                    { r: 17, g: 153, b: 142 },
+                    { r: 56, g: 239, b: 125 },
+                    { r: 46, g: 213, b: 115 }
+                ]
+            };
+            return themes[this.currentTheme] || themes.rainbow;
+        }
+
+        wrapText(text, maxCharsPerLine) {
+            const words = text.split(' ');
+            const lines = [];
+            let currentLine = '';
+            
+            words.forEach(word => {
+                if ((currentLine + word).length <= maxCharsPerLine) {
+                    currentLine += (currentLine ? ' ' : '') + word;
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = word;
+                }
+            });
+            
+            if (currentLine) lines.push(currentLine);
+            return lines.length > 4 ? [lines.slice(0, 4).join(' ').substring(0, maxCharsPerLine * 4)] : lines;
+        }
+
+        getTextPositions(text, fontFamily, animationType) {
+            const colors = this.getThemeColors();
+            const fontSize = 48;
+            const lines = this.wrapText(text, Math.floor(this.canvas.width / (fontSize * 0.7)));
+            const totalHeight = lines.length * fontSize * 1.4;
+            const startY = (this.canvas.height * 0.4) - (totalHeight / 2);
+            
+            let positions = [];
+            let globalIndex = 0;
+            
+            lines.forEach((line, lineIndex) => {
+                const lineWidth = line.length * fontSize * 0.7;
+                const startX = (this.canvas.width / 2) - (lineWidth / 2);
+                const y = startY + (lineIndex * fontSize * 1.4);
+                
+                line.split('').forEach((char, charIndex) => {
+                    const color = colors[globalIndex % colors.length];
+                    positions.push({
+                        char: char === ' ' ? '\u00A0' : char,
+                        x: startX + (charIndex * fontSize * 0.7),
+                        y: y,
+                        color: `rgb(${color.r}, ${color.g}, ${color.b})`,
+                        lineIndex: lineIndex,
+                        charIndex: charIndex,
+                        fontFamily: fontFamily,
+                        animationType: animationType
+                    });
+                    globalIndex++;
+                });
+            });
+            
+            return positions;
+        }
+
+        start(text = "HELLO WORLD") {
+            if (!text.trim()) {
+                text = "HELLO WORLD";
+            }
+            
+            text = text.toUpperCase().substring(0, 100);
+            const fontFamily = document.getElementById('fontFamily').value;
+            const animationType = document.getElementById('textAnimation').value;
+            const duration = 12000;
+            
+            this.initialize();
+            this.stop();
+            
+            const launchX = this.canvas.width / 2;
+            const launchY = this.canvas.height - 50;
+            const targetY = this.canvas.height * 0.35;
+            
+            // Launch trail
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const trail = new FireworksParticle(
+                        launchX + (Math.random() - 0.5) * 8,
+                        launchY - i * 15,
+                        (Math.random() - 0.5) * 1.5,
+                        -7 + Math.random() * 2,
+                        '255, 200, 100',
+                        50,
+                        2
+                    );
+                    this.particles.push(trail);
+                }, i * 30);
+            }
+
+            setTimeout(() => {
+                this.explodeIntoText(launchX, targetY, text, fontFamily, animationType);
+            }, 650);
+            
+            this.isRunning = true;
+            this.animate();
+            
+            // Auto-stop
+            setTimeout(() => {
+                this.stop();
+            }, duration);
+        }
+
+        explodeIntoText(centerX, centerY, text, fontFamily, animationType) {
+            // Clear existing
+            this.particles = [];
+            this.textParticles.forEach(tp => tp.destroy());
+            this.textParticles = [];
+            
+            // Initial explosion
+            for (let i = 0; i < 25; i++) {
+                const angle = (Math.PI * 2 / 25) * i;
+                const speed = 10 + Math.random() * 8;
+                this.particles.push(new FireworksParticle(
+                    centerX,
+                    centerY,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed,
+                    '255, 255, 255',
+                    40,
+                    3
+                ));
+            }
+
+            // Create text
+            setTimeout(() => {
+                const positions = this.getTextPositions(text, fontFamily, animationType);
+                positions.forEach((pos) => {
+                    const textParticle = new TextParticle(
+                        centerX,
+                        centerY,
+                        pos.char,
+                        pos.x,
+                        pos.y,
+                        pos.color,
+                        48, // fontSize
+                        pos.lineIndex,
+                        pos.charIndex,
+                        pos.fontFamily,
+                        pos.animationType
+                    );
+                    textParticle.setFireworksSystem(this);
+                    this.textParticles.push(textParticle);
+                });
+
+                // Celebration sparkles using theme colors
+                const colors = this.getThemeColors();
+                for (let i = 0; i < 60; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 3 + Math.random() * 6;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    const particleColor = `${color.r}, ${color.g}, ${color.b}`;
+                    
+                    this.particles.push(new FireworksParticle(
+                        centerX + (Math.random() - 0.5) * 30,
+                        centerY + (Math.random() - 0.5) * 30,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        particleColor,
+                        100,
+                        1.5
+                    ));
+                }
+            }, 120);
+        }
+
+        animate() {
+            if (!this.isRunning) return;
+            
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            // Update particles
+            this.particles = this.particles.filter(particle => {
+                particle.update();
+                particle.draw(this.ctx);
+                return !particle.isDead();
+            });
+
+            // Update text particles
+            this.textParticles = this.textParticles.filter(textParticle => {
+                textParticle.update();
+                if (textParticle.isDead()) {
+                    textParticle.destroy();
+                    return false;
+                }
+                return true;
+            });
+
+            this.animationId = requestAnimationFrame(() => this.animate());
+        }
+
+        stop() {
+            this.isRunning = false;
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
+                this.animationId = null;
+            }
+            
+            // Clear particles
+            this.particles = [];
+            this.textParticles.forEach(tp => tp.destroy());
+            this.textParticles = [];
+            
+            // Clear canvas
+            if (this.ctx) {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            // Remove text elements
+            document.querySelectorAll('.fireworks-text-char').forEach(el => el.remove());
+        }
+
+        destroy() {
+            this.stop();
+            if (this.canvas) {
+                this.canvas.remove();
+                this.canvas = null;
+                this.ctx = null;
+            }
+        }
+
+        setTheme(theme) {
+            this.currentTheme = theme;
+        }
+    }
+
+    // Global system instance
+    let fireworksSystem = new CustomFireworksSystem();
+
+    // UI Functions
+    function startFireworks() {
+        const text = document.getElementById('customText').value || "HELLO WORLD";
+        const theme = document.querySelector('.color-option.selected').dataset.theme;
+        
+        fireworksSystem.setTheme(theme);
+        fireworksSystem.start(text);
+    }
+
+    function stopFireworks() {
+        fireworksSystem.stop();
+    }
+
+    // Color theme selection
+    document.querySelectorAll('.color-option').forEach(option => {
+        option.addEventListener('click', function() {
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+        });
+    });
+
+    // Enter key to launch fireworks
+    document.getElementById('customText').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            startFireworks();
+        }
+    });
+
+    // Initialize with placeholder animation on load
+    window.addEventListener('load', function() {
+        setTimeout(() => {
+            fireworksSystem.start('WELCOME!');
+        }, 1000);
+    });
+</script>
+</body>
+</html>
