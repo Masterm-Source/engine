@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Shape Fireworks Animation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0c0c2e, #1a1a3e);
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+code
+Code
+download
+content_copy
+expand_less
+
+.controls {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1001;
+        background: rgba(0,0,0,0.8);
+        padding: 15px;
+        border-radius: 10px;
+    }
+    
+    .controls h3 {
+        margin: 0 0 10px 0;
+        color: #fff;
+    }
+    
+    .shape-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+    }
+    
+    button {
+        background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+        border: none;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,107,107,0.4);
+    }
+    
+    button:active {
+        transform: translateY(0);
+    }
+    
+    .emoji.heart-fireworks-emoji {
+        user-select: none;
+        text-shadow: 0 0 10px rgba(255,255,255,0.8);
+    }
+</style>
+</head>
+<body>
+    <div class="controls">
+        <h3>🎆 Shape Fireworks</h3>
+        <div class="shape-grid">
+            <button onclick="launchShape('heart')">❤️ Heart</button>
+            <button onclick="launchShape('star5')">⭐ Star</button>
+            <button onclick="launchShape('diamond')">💎 Diamond</button>
+            <button onclick="launchShape('circle')">⚪ Circle</button>
+            <button onclick="launchShape('smiley')">😊 Smiley</button>
+            <button onclick="launchShape('butterfly')">🦋 Butterfly</button>
+            <button onclick="launchShape('flower')">🌸 Flower</button>
+            <button onclick="launchShape('infinity')">∞ Infinity</button>
+            <button onclick="launchShape('spiral')">🌀 Spiral</button>
+            <button onclick="launchShape('musicnote')">🎵 Music</button>
+            <button onclick="launchShape('leaf')">🍃 Leaf</button>
+            <button onclick="launchShape('lightning')">⚡ Lightning</button>
+        </div>
+        <button onclick="randomShape()" style="margin-top: 10px; width: 100%; background: linear-gradient(45deg, #4CAF50, #45a049);">🎲 Random Shape</button>
+    </div>
+
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+<script>
+    // Heart Fireworks Animation System with Multiple Shapes
+    class HeartFireworksParticle {
+        constructor(x, y, vx, vy, color, life, size = 2) {
+            this.x = x;
+            this.y = y;
+            this.vx = vx;
+            this.vy = vy;
+            this.color = color;
+            this.life = life;
+            this.maxLife = life;
+            this.size = size;
+            this.gravity = 0.02;
+            this.friction = 0.98;
+        }
+
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            this.vy += this.gravity;
+            this.vx *= this.friction;
+            this.vy *= this.friction;
+            this.life--;
+        }
+
+        draw(ctx) {
+            const alpha = this.life / this.maxLife;
+            const brightness = Math.min(1, alpha * 1.5);
+            
+            ctx.save();
+            ctx.globalCompositeOperation = 'screen';
+            
+            const glowSize = this.size * 3;
+            const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowSize);
+            gradient.addColorStop(0, `rgba(${this.color}, ${brightness * 0.8})`);
+            gradient.addColorStop(0.5, `rgba(${this.color}, ${brightness * 0.4})`);
+            gradient.addColorStop(1, `rgba(${this.color}, 0)`);
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.fillStyle = `rgba(${this.color}, ${brightness})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.restore();
+        }
+
+        isDead() {
+            return this.life <= 0;
+        }
+    }
+
+    class HeartFireworksEmojiParticle {
+        constructor(x, y, vx, vy, emoji, life, targetX = null, targetY = null) {
+            this.x = x;
+            this.y = y;
+            this.startX = x;
+            this.startY = y;
+            this.vx = vx;
+            this.vy = vy;
+            this.emoji = emoji;
+            this.life = life;
+            this.maxLife = life;
+            this.gravity = 0.015;
+            this.friction = 0.99;
+            this.targetX = targetX;
+            this.targetY = targetY;
+            this.element = null;
+            this.hasExploded = false;
+            this.formationTime = 0;
+            this.isForming = targetX !== null;
+            this.formationDuration = 100;
+        }
+
+        update() {
+            if (this.isForming && this.formationTime < this.formationDuration) {
+                const progress = this.formationTime / this.formationDuration;
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                
+                this.x = this.startX + (this.targetX - this.startX) * easeProgress;
+                this.y = this.startY + (this.targetY - this.startY) * easeProgress;
+                this.formationTime++;
+            } else {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.vx *= this.friction;
+                this.vy *= this.friction;
+            }
+            this.life--;
+            this.updateElement();
+        }
+
+        createElement() {
+            this.element = document.createElement('div');
+            this.element.className = 'emoji heart-fireworks-emoji';
+            this.element.textContent = this.emoji;
+            this.element.style.cssText = `
+                position: absolute;
+                font-size: 20px;
+                pointer-events: none;
+                z-index: 1000;
+                left: ${this.x}px;
+                top: ${this.y}px;
+            `;
+            document.body.appendChild(this.element);
+        }
+
+        updateElement() {
+            if (!this.element) this.createElement();
+            
+            const alpha = this.life / this.maxLife;
+            this.element.style.left = this.x + 'px';
+            this.element.style.top = this.y + 'px';
+            this.element.style.opacity = alpha;
+            this.element.style.transform = `scale(${0.5 + alpha * 0.5})`;
+        }
+
+        destroy() {
+            if (this.element) {
+                this.element.remove();
+                this.element = null;
+            }
+        }
+
+        isDead() {
+            return this.life <= 0;
+        }
+    }
+
+    class MultiShapeFireworksSystem {
+        constructor() {
+            this.canvas = null;
+            this.ctx = null;
+            this.particles = [];
+            this.emojiParticles = [];
+            this.isRunning = false;
+            this.animationId = null;
+        }
+
+        initialize() {
+            if (this.canvas) return;
+            
+            this.canvas = document.createElement('canvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.canvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                pointer-events: none;
+                z-index: 999;
+                background: transparent;
+            `;
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+            
+            document.body.appendChild(this.canvas);
+            
+            window.addEventListener('resize', () => {
+                if (this.canvas) {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                }
+            });
+        }
+
+        // All shape generation functions
+        createHeartShape() {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            const scale = 10;
+            
+            for (let t = 0; t < Math.PI * 2; t += 0.15) {
+                const x = scale * (16 * Math.sin(t) ** 3);
+                const y = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                points.push({
+                    x: centerX + x,
+                    y: centerY - y
+                });
+            }
+            return points;
+        }
+
+        createStarShape(numPoints = 5, outerRadius = 80, innerRadius = 40) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            const angleStep = Math.PI / numPoints;
+            
+            for (let i = 0; i < numPoints * 2; i++) {
+                const angle = i * angleStep - Math.PI / 2;
+                const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                points.push({
+                    x: centerX + Math.cos(angle) * radius,
+                    y: centerY + Math.sin(angle) * radius
+                });
+            }
+            return points;
+        }
+
+        createDiamondShape(width = 100, height = 120) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            for (let i = 0; i < 40; i++) {
+                const t = (i / 40) * Math.PI * 2;
+                const radius = (Math.abs(Math.cos(t)) + Math.abs(Math.sin(t))) > 0 ? 
+                    1 / (Math.abs(Math.cos(t)) + Math.abs(Math.sin(t))) : 1;
+                
+                points.push({
+                    x: centerX + Math.cos(t) * radius * width * 0.5,
+                    y: centerY + Math.sin(t) * radius * height * 0.5
+                });
+            }
+            return points;
+        }
+
+        createCircleShape(radius = 80) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            for (let t = 0; t < Math.PI * 2; t += 0.1) {
+                points.push({
+                    x: centerX + Math.cos(t) * radius,
+                    y: centerY + Math.sin(t) * radius
+                });
+            }
+            return points;
+        }
+
+        createSmileyShape(radius = 60) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            // Face circle
+            for (let t = 0; t < Math.PI * 2; t += 0.15) {
+                points.push({
+                    x: centerX + Math.cos(t) * radius,
+                    y: centerY + Math.sin(t) * radius
+                });
+            }
+            
+            // Eyes
+            for (let t = 0; t < Math.PI * 2; t += 0.5) {
+                points.push({
+                    x: centerX - radius * 0.3 + Math.cos(t) * radius * 0.08,
+                    y: centerY - radius * 0.3 + Math.sin(t) * radius * 0.08
+                });
+                points.push({
+                    x: centerX + radius * 0.3 + Math.cos(t) * radius * 0.08,
+                    y: centerY - radius * 0.3 + Math.sin(t) * radius * 0.08
+                });
+            }
+            
+            // Smile
+            for (let t = 0.2; t < Math.PI - 0.2; t += 0.1) {
+                points.push({
+                    x: centerX + Math.cos(t) * radius * 0.5,
+                    y: centerY + radius * 0.1 + Math.sin(t) * radius * 0.3
+                });
+            }
+            
+            return points;
+        }
+
+        createButterflyShape(scale = 50) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            // Body
+            for (let i = 0; i <= 15; i++) {
+                points.push({
+                    x: centerX,
+                    y: centerY - scale + (i / 15) * scale * 2
+                });
+            }
+            
+            // Wings
+            for (let t = 0; t < Math.PI * 2; t += 0.15) {
+                const wingX = Math.cos(t) * scale * 0.8;
+                const wingY = Math.abs(Math.sin(t)) * scale * 0.6;
+                
+                // Upper wings
+                points.push({
+                    x: centerX + wingX,
+                    y: centerY - scale * 0.3 - wingY
+                });
+                points.push({
+                    x: centerX - wingX,
+                    y: centerY - scale * 0.3 - wingY
+                });
+                
+                // Lower wings
+                const lowerScale = 0.6;
+                points.push({
+                    x: centerX + wingX * lowerScale,
+                    y: centerY + scale * 0.2 + wingY * lowerScale
+                });
+                points.push({
+                    x: centerX - wingX * lowerScale,
+                    y: centerY + scale * 0.2 + wingY * lowerScale
+                });
+            }
+            
+            return points;
+        }
+
+        createFlowerShape(petals = 8, petalRadius = 50) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            for (let i = 0; i < petals; i++) {
+                const petalAngle = (i * 2 * Math.PI / petals);
+                
+                for (let t = 0; t < Math.PI * 2; t += 0.2) {
+                    const petalX = Math.cos(t) * petalRadius * 0.3;
+                    const petalY = Math.sin(t) * petalRadius * 0.8;
+                    
+                    const rotatedX = petalX * Math.cos(petalAngle) - petalY * Math.sin(petalAngle);
+                    const rotatedY = petalX * Math.sin(petalAngle) + petalY * Math.cos(petalAngle);
+                    
+                    points.push({
+                        x: centerX + rotatedX,
+                        y: centerY + rotatedY
+                    });
+                }
+            }
+            
+            // Center
+            for (let t = 0; t < Math.PI * 2; t += 0.2) {
+                points.push({
+                    x: centerX + Math.cos(t) * 15,
+                    y: centerY + Math.sin(t) * 15
+                });
+            }
+            
+            return points;
+        }
+
+        createInfinityShape(scale = 50) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            for (let t = 0; t < Math.PI * 2; t += 0.05) {
+                const x = scale * Math.cos(t) / (1 + Math.sin(t) ** 2);
+                const y = scale * Math.sin(t) * Math.cos(t) / (1 + Math.sin(t) ** 2);
+                points.push({
+                    x: centerX + x,
+                    y: centerY + y
+                });
+            }
+            return points;
+        }
+
+        createSpiralShape(turns = 3, maxRadius = 80) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            const totalAngle = turns * Math.PI * 2;
+            
+            for (let t = 0; t < totalAngle; t += 0.1) {
+                const radius = (t / totalAngle) * maxRadius;
+                points.push({
+                    x: centerX + Math.cos(t) * radius,
+                    y: centerY + Math.sin(t) * radius
+                });
+            }
+            return points;
+        }
+
+        createMusicNoteShape(scale = 60) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            // Note head
+            for (let t = 0; t < Math.PI * 2; t += 0.2) {
+                points.push({
+                    x: centerX - scale * 0.3 + Math.cos(t) * scale * 0.25,
+                    y: centerY + scale * 0.5 + Math.sin(t) * scale * 0.15
+                });
+            }
+            
+            // Stem
+            for (let i = 0; i <= 20; i++) {
+                points.push({
+                    x: centerX - scale * 0.05,
+                    y: centerY + scale * 0.5 - (i / 20) * scale * 1.2
+                });
+            }
+            
+            // Flag
+            for (let t = 0; t < Math.PI; t += 0.15) {
+                const flagScale = Math.sin(t) * scale * 0.4;
+                points.push({
+                    x: centerX - scale * 0.05 + flagScale,
+                    y: centerY - scale * 0.7 + t * scale * 0.3
+                });
+            }
+            
+            return points;
+        }
+
+        createLeafShape(width = 40, height = 80) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            for (let t = 0; t < Math.PI * 2; t += 0.1) {
+                const leafRadius = height * (0.5 + 0.3 * Math.cos(2 * t)) * Math.abs(Math.sin(t));
+                const x = leafRadius * Math.cos(t) * (width / height);
+                const y = leafRadius * Math.sin(t);
+                
+                points.push({
+                    x: centerX + x,
+                    y: centerY + y
+                });
+            }
+            
+            // Center vein
+            for (let i = 0; i <= 10; i++) {
+                points.push({
+                    x: centerX,
+                    y: centerY - height * 0.5 + (i / 10) * height
+                });
+            }
+            
+            return points;
+        }
+
+        createLightningShape(scale = 80) {
+            const points = [];
+            const centerX = this.canvas.width / 2;
+            const centerY = this.canvas.height * 0.35;
+            
+            const zigzagPoints = [
+                { x: 0, y: -scale },
+                { x: scale * 0.3, y: -scale * 0.5 },
+                { x: -scale * 0.2, y: -scale * 0.2 },
+                { x: scale * 0.4, y: 0 },
+                { x: -scale * 0.1, y: scale * 0.3 },
+                { x: scale * 0.2, y: scale * 0.8 },
+                { x: 0, y: scale }
+            ];
+            
+            for (let i = 0; i < zigzagPoints.length - 1; i++) {
+                const p1 = zigzagPoints[i];
+                const p2 = zigzagPoints[i + 1];
+                
+                for (let t = 0; t <= 1; t += 0.1) {
+                    points.push({
+                        x: centerX + p1.x + (p2.x - p1.x) * t,
+                        y: centerY + p1.y + (p2.y - p1.y) * t
+                    });
+                }
+            }
+            
+            return points;
+        }
+
+        getShapePoints(shapeName) {
+            switch(shapeName.toLowerCase()) {
+                case 'heart': return this.createHeartShape();
+                case 'star5': return this.createStarShape(5, 80, 40);
+                case 'star6': return this.createStarShape(6, 80, 45);
+                case 'diamond': return this.createDiamondShape(100, 120);
+                case 'circle': return this.createCircleShape(80);
+                case 'smiley': return this.createSmileyShape(60);
+                case 'butterfly': return this.createButterflyShape(50);
+                case 'flower': return this.createFlowerShape(8, 50);
+                case 'infinity': return this.createInfinityShape(50);
+                case 'spiral': return this.createSpiralShape(3, 80);
+                case 'musicnote': return this.createMusicNoteShape(60);
+                case 'leaf': return this.createLeafShape(40, 80);
+                case 'lightning': return this.createLightningShape(80);
+                default: return this.createHeartShape();
+            }
+        }
+
+        getShapeEmoji(shapeName) {
+            const emojiMap = {
+                'heart': '❤️',
+                'star5': '⭐',
+                'star6': '✨',
+                'diamond': '💎',
+                'circle': '⚪',
+                'smiley': '😊',
+                'butterfly': '🦋',
+                'flower': '🌸',
+                'infinity': '∞',
+                'spiral': '🌀',
+                'musicnote': '🎵',
+                'leaf': '🍃',
+                'lightning': '⚡'
+            };
+            return emojiMap[shapeName.toLowerCase()] || '❤️';
+        }
+
+        start(shapeName = 'heart') {
+            this.initialize();
+            this.stop();
+            
+            const launchX = this.canvas.width / 2;
+            const launchY = this.canvas.height - 50;
+            const targetY = this.canvas.height * 0.35;
+            
+            // Launch trail
+            for (let i = 0; i < 25; i++) {
+                setTimeout(() => {
+                    const trail = new HeartFireworksParticle(
+                        launchX + (Math.random() - 0.5) * 8,
+                        launchY - i * 12,
+                        (Math.random() - 0.5) * 1.5,
+                        -6 + Math.random() * 1.5,
+                        '255, 180, 80',
+                        50,
+                        2
+                    );
+                    this.particles.push(trail);
+                }, i * 25);
+            }
+
+            // Main explosion
+            setTimeout(() => {
+                this.explodeIntoShape(launchX, targetY, shapeName);
+            }, 700);
+            
+            this.isRunning = true;
+            this.animate();
+            
+            // Auto-stop after 6 seconds
+            setTimeout(() => {
+                this.stop();
+            }, 6000);
+        }
+
+        explodeIntoShape(centerX, centerY, shapeName) {
+            const shapePoints = this.getShapePoints(shapeName);
+            const emoji = this.getShapeEmoji(shapeName);
+            
+            this.particles = [];
+            this.emojiParticles.forEach(ep => ep.destroy());
+            this.emojiParticles = [];
+            
+            // Initial explosion
+            for (let i = 0; i < 30; i++) {
+                const angle = (Math.PI * 2 / 30) * i;
+                const speed = 12 + Math.random() * 8;
+                this.particles.push(new HeartFireworksParticle(
+                    centerX,
+                    centerY,
+                    Math.cos(angle) * speed,
+                    Math.sin(angle) * speed,
+                    '255, 255, 200',
+                    40,
+                    3
+                ));
+            }
+
+            // Shape formation
+            setTimeout(() => {
+                shapePoints.forEach((point, index) => {
+                    const emojiParticle = new HeartFireworksEmojiParticle(
+                        centerX,
+                        centerY,
+                        0, 0,
+                        emoji,
+                        250,
+                        point.x,
+                        point.y
+                    );
+                    this.emojiParticles.push(emojiParticle);
+                });
+
+                // Sparkle particles
+                for (let i = 0; i < 80; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 4 + Math.random() * 8;
+                    this.particles.push(new HeartFireworksParticle(
+                        centerX + (Math.random() - 0.5) * 20,
+                        centerY + (Math.random() - 0.5) * 20,
+                        Math.cos(angle) * speed,
+                        Math.sin(angle) * speed,
+                        `${255}, ${200 + Math.random() * 55}, ${100 + Math.random() * 100}`,
+                        120,
+                        1.5
+                    ));
+                }
+            }, 150);
+        }
+
+        animate() {
+            if (!this.isRunning) return;
+            
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+            this.particles = this.particles.filter(particle => {
+                particle.update();
+                particle.draw(this.ctx);
+                return !particle.isDead();
+            });
+
+            this.emojiParticles = this.emojiParticles.filter(emojiParticle => {
+                emojiParticle.update();
+                if (emojiParticle.isDead()) {
+                    emojiParticle.destroy();
+                    return false;
+                }
+                return true;
+            });
+
+            this.animationId = requestAnimationFrame(() => this.animate());
+        }
+
+        stop() {
+            this.isRunning = false;
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
+                this.animationId = null;
+            }
+            
+            this.particles = [];
+            this.emojiParticles.forEach(ep => ep.destroy());
+            this.emojiParticles = [];
+            
+            if (this.ctx) {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            document.querySelectorAll('.heart-fireworks-emoji').forEach(el => el.remove());
+        }
+
+        destroy() {
+            this.stop();
+            if (this.canvas) {
+                this.canvas.remove();
+                this.canvas = null;
+                this.ctx = null;
+            }
+        }
+    }
+
+    // Global fireworks system
+    const fireworks = new MultiShapeFireworksSystem();
+
+    // Launch functions
+    function launchShape(shapeName) {
+        fireworks.start(shapeName);
+    }
+
+    function randomShape() {
+        const shapes = ['heart', 'star5', 'diamond', 'circle', 'smiley', 'butterfly', 'flower', 'infinity', 'spiral', 'musicnote', 'leaf', 'lightning'];
+        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
+        fireworks.start(randomShape);
+    }
+
+    // Auto-launch heart on page load
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            launchShape('heart');
+        }, 1000);
+    });
+</script>
+</body>
+</html>
