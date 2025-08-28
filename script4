@@ -1,0 +1,514 @@
+document.getElementById('intensitySlider').addEventListener('input', (e) => {
+intensity = parseInt(e.target.value);
+});<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Corporate Confetti System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+code
+Code
+download
+content_copy
+expand_less
+
+body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 50%, #2a2a2a 100%);
+        overflow: hidden;
+        height: 100vh;
+        position: relative;
+    }
+
+    #canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .control-panel {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 24px;
+        min-width: 320px;
+        color: white;
+        font-weight: 500;
+    }
+
+    .section {
+        margin-bottom: 24px;
+    }
+
+    .section:last-child {
+        margin-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #ffffff;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .celebration-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .celebration-btn {
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 13px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .celebration-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .celebration-btn.active {
+        background: rgba(59, 130, 246, 0.3);
+        border-color: #3b82f6;
+        color: #60a5fa;
+    }
+
+    .color-palette {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .color-option {
+        width: 48px;
+        height: 48px;
+        border: 2px solid transparent;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .color-option:hover {
+        transform: scale(1.05);
+    }
+
+    .color-option.active {
+        border-color: white;
+        transform: scale(1.05);
+    }
+
+    .intensity-control {
+        margin-bottom: 16px;
+    }
+
+    .slider {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        outline: none;
+        appearance: none;
+        margin: 8px 0;
+    }
+
+    .slider::-webkit-slider-thumb {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        border: 2px solid white;
+    }
+
+    .launch-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .control-btn {
+        padding: 14px 20px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .control-btn:hover {
+        background: linear-gradient(135deg, #2563eb, #1e40af);
+        transform: translateY(-1px);
+    }
+
+    .control-btn.stop {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .control-btn.stop:hover {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+
+    .status-bar {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .status-bar.show {
+        opacity: 1;
+    }
+</style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+code
+Code
+download
+content_copy
+expand_less
+IGNORE_WHEN_COPYING_START
+IGNORE_WHEN_COPYING_END
+<div class="status-bar" id="statusBar">Ready for Launch</div>
+
+<div class="control-panel">
+    <div class="section">
+        <div class="section-title">Event Type</div>
+        <div class="celebration-grid">
+            <div class="celebration-btn active" data-type="product">Product Launch</div>
+            <div class="celebration-btn" data-type="ipo">IPO Celebration</div>
+            <div class="celebration-btn" data-type="milestone">Milestone</div>
+            <div class="celebration-btn" data-type="acquisition">Acquisition</div>
+        </div>
+    </div>
+    
+    <div class="section">
+        <div class="section-title">Brand Colors</div>
+        <div class="color-palette">
+            <div class="color-option active" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8)" data-colors="3b82f6,1d4ed8,60a5fa,93c5fd"></div>
+            <div class="color-option" style="background: linear-gradient(45deg, #10b981, #059669)" data-colors="10b981,059669,34d399,6ee7b7"></div>
+            <div class="color-option" style="background: linear-gradient(45deg, #f59e0b, #d97706)" data-colors="f59e0b,d97706,fbbf24,fcd34d"></div>
+            <div class="color-option" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed)" data-colors="8b5cf6,7c3aed,a78bfa,c4b5fd"></div>
+            <div class="color-option" style="background: linear-gradient(45deg, #ef4444, #dc2626)" data-colors="ef4444,dc2626,f87171,fca5a5"></div>
+            <div class="color-option" style="background: linear-gradient(45deg, #06b6d4, #0891b2)" data-colors="06b6d4,0891b2,22d3ee,67e8f9"></div>
+            <div class="color-option" style="background: linear-gradient(45deg, #ec4899, #db2777)" data-colors="ec4899,db2777,f472b6,f9a8d4"></div>
+            <div class="color-option" style="background: linear-gradient(45deg, #000000, #374151)" data-colors="000000,374151,6b7280,9ca3af"></div>
+        </div>
+    </div>
+    
+
+    
+    <div class="section">
+        <div class="launch-controls">
+            <button class="control-btn" id="launchBtn" onclick="startCelebration()">Launch</button>
+            <button class="control-btn stop" id="stopBtn" onclick="stopCelebration()">Stop</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let confetti = [];
+    let cannons = [];
+    let isActive = false;
+    let animationId = null;
+    let currentType = 'product';
+    let currentColors = ['3b82f6', '1d4ed8', '60a5fa', '93c5fd'];
+    let intensity = 5;
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initializeCannons();
+    }
+
+    function initializeCannons() {
+        cannons = [];
+        const cannonCount = Math.floor(canvas.width / 200) + 2;
+        for (let i = 0; i < cannonCount; i++) {
+            cannons.push({
+                x: (canvas.width / (cannonCount - 1)) * i,
+                y: canvas.height,
+                lastFire: 0
+            });
+        }
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class ConfettiPiece {
+        constructor(x, y, color, shape, eventType) {
+            this.x = x;
+            this.y = y;
+            this.vx = (Math.random() - 0.5) * 12;
+            this.vy = -Math.random() * 15 - 10;
+            this.color = color;
+            this.shape = shape;
+            this.size = Math.random() * 8 + 4;
+            this.rotation = Math.random() * 360;
+            this.rotationSpeed = (Math.random() - 0.5) * 15;
+            this.gravity = 0.3;
+            this.drag = 0.99;
+            this.life = 1;
+            this.decay = 0.005;
+            this.eventType = eventType;
+            
+            // Professional shapes based on event type
+            if (eventType === 'product') {
+                this.shapes = ['rectangle', 'triangle', 'diamond'];
+            } else if (eventType === 'ipo') {
+                this.shapes = ['circle', 'star', 'diamond'];
+            } else if (eventType === 'milestone') {
+                this.shapes = ['star', 'hexagon', 'triangle'];
+            } else {
+                this.shapes = ['rectangle', 'circle', 'diamond'];
+            }
+            this.currentShape = this.shapes[Math.floor(Math.random() * this.shapes.length)];
+        }
+
+        update() {
+            this.vx *= this.drag;
+            this.vy += this.gravity;
+            this.x += this.vx;
+            this.y += this.vy;
+            this.rotation += this.rotationSpeed;
+            this.life -= this.decay;
+            
+            // Slight wind effect
+            this.vx += Math.sin(Date.now() * 0.001 + this.x * 0.01) * 0.1;
+        }
+
+        draw() {
+            if (this.life <= 0) return;
+            
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.rotation * Math.PI / 180);
+            ctx.globalAlpha = this.life;
+            ctx.fillStyle = this.color;
+            
+            const size = this.size * (0.5 + this.life * 0.5);
+            
+            switch(this.currentShape) {
+                case 'rectangle':
+                    ctx.fillRect(-size/2, -size/4, size, size/2);
+                    break;
+                case 'circle':
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size/2, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                case 'triangle':
+                    ctx.beginPath();
+                    ctx.moveTo(0, -size/2);
+                    ctx.lineTo(-size/2, size/2);
+                    ctx.lineTo(size/2, size/2);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'diamond':
+                    ctx.beginPath();
+                    ctx.moveTo(0, -size/2);
+                    ctx.lineTo(size/2, 0);
+                    ctx.lineTo(0, size/2);
+                    ctx.lineTo(-size/2, 0);
+                    ctx.closePath();
+                    ctx.fill();
+                    break;
+                case 'star':
+                    this.drawStar(0, 0, size/2, 5);
+                    break;
+                case 'hexagon':
+                    this.drawPolygon(0, 0, size/2, 6);
+                    break;
+            }
+            ctx.restore();
+        }
+
+        drawStar(x, y, radius, points) {
+            ctx.beginPath();
+            for (let i = 0; i < points * 2; i++) {
+                const angle = (i * Math.PI) / points;
+                const r = i % 2 === 0 ? radius : radius * 0.4;
+                const px = x + Math.cos(angle) * r;
+                const py = y + Math.sin(angle) * r;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        drawPolygon(x, y, radius, sides) {
+            ctx.beginPath();
+            for (let i = 0; i < sides; i++) {
+                const angle = (i * 2 * Math.PI) / sides;
+                const px = x + Math.cos(angle) * radius;
+                const py = y + Math.sin(angle) * radius;
+                if (i === 0) ctx.moveTo(px, py);
+                else ctx.lineTo(px, py);
+            }
+            ctx.closePath();
+            ctx.fill();
+        }
+    }
+
+    function hexToRgb(hex) {
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    function fireConfetti() {
+        if (!isActive) return;
+        
+        const now = Date.now();
+        const fireRate = 50 + (10 - intensity) * 20;
+        
+        cannons.forEach(cannon => {
+            if (now - cannon.lastFire > fireRate) {
+                const burstSize = Math.floor(intensity * 3 + 5);
+                
+                for (let i = 0; i < burstSize; i++) {
+                    const color = hexToRgb(currentColors[Math.floor(Math.random() * currentColors.length)]);
+                    const shape = Math.floor(Math.random() * 4);
+                    const piece = new ConfettiPiece(
+                        cannon.x + (Math.random() - 0.5) * 50,
+                        cannon.y - Math.random() * 50,
+                        color,
+                        shape,
+                        currentType
+                    );
+                    confetti.push(piece);
+                }
+                cannon.lastFire = now;
+            }
+        });
+    }
+
+    function updateStatus(message) {
+        const statusBar = document.getElementById('statusBar');
+        statusBar.textContent = message;
+        statusBar.classList.add('show');
+        setTimeout(() => statusBar.classList.remove('show'), 2000);
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        if (isActive) {
+            fireConfetti();
+        }
+        
+        confetti = confetti.filter(piece => {
+            piece.update();
+            piece.draw();
+            return piece.life > 0 && piece.y < canvas.height + 100;
+        });
+        
+        // Continue animation if active or if confetti still exists
+        if (isActive || confetti.length > 0) {
+            animationId = requestAnimationFrame(animate);
+        } else {
+            animationId = null;
+        }
+    }
+
+    // Launch button functions
+    window.startCelebration = function() {
+        isActive = true;
+        confetti = []; // Clear existing confetti
+        updateStatus(`${currentType.charAt(0).toUpperCase() + currentType.slice(1)} Celebration Active`);
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+        animate();
+        
+        // Auto-stop after 8 seconds
+        setTimeout(() => {
+            if (isActive) {
+                stopCelebration();
+            }
+        }, 8000);
+    }
+
+    window.stopCelebration = function() {
+        isActive = false;
+        updateStatus('Celebration Stopped');
+    }
+
+    // Event listeners
+    document.querySelectorAll('.celebration-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelector('.celebration-btn.active')?.classList.remove('active');
+            btn.classList.add('active');
+            currentType = btn.dataset.type;
+            console.log('Event type changed to:', currentType); // Debug
+        });
+    });
+
+    document.querySelectorAll('.color-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelector('.color-option.active')?.classList.remove('active');
+            btn.classList.add('active');
+            currentColors = btn.dataset.colors.split(',');
+            console.log('Colors changed to:', currentColors); // Debug
+        });
+    });
+
+    document.getElementById('intensitySlider').addEventListener('input', (e) => {
+        intensity = parseInt(e.target.value);
+    });
+
+    // Auto-start demo
+    setTimeout(() => {
+        startCelebration();
+    }, 1000);
+</script>
+</body>
+</html>
